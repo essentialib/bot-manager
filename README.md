@@ -6,7 +6,7 @@
 - Command
 
 > [!WARNING]
-> `src` 폴더의 코드를 `npm run build` 또는 `npm run build-js` 명령어로 트랜스파일해 생성되는 `dist` 폴더의 파일을 배포합니다.
+> `src` 폴더의 코드를 `npm run build` 또는 `npm run build-js` 명령어로 트랜스파일해 생성되는 `dist` 폴더를 배포합니다.
 
 ## Examples
 ```javascript
