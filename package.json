@@ -5,7 +5,7 @@
   "main": "dist/index.js",
   "scripts": {
     "build": "babel src --out-dir dist --extensions \".ts,.js\" --copy-files --ignore \"*.json\"",
-    "build-js": "babel src --out-dir dist --extensions \".js\" --copy-files --ignore \"*.json,*.d.ts\""
+    "build-js": "babel src --out-dir dist --exte  nsions \".js\" --copy-files --ignore \"*.json,*.d.ts\""
   },
   "repository": {
     "type": "git",

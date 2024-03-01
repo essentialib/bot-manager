@@ -2,7 +2,7 @@ const IS_DIST = false;
 const COMPRESS = '\u200b'.repeat(500);
 
 class Command {
-    constructor(name, description, execute, executeLazy, executeCron, cronjobs, channels, examples) {
+    constructor(name, description, execute, executeLazy, executeCron, cronJobs, channels, examples) {
         if (this.constructor === Command)
             throw new TypeError("Cannot construct abstract class");
 
@@ -14,7 +14,7 @@ class Command {
         this.name = name;
         this.description = description;
         this.channels = channels || [];
-        this.cronjobs = cronjobs || {};
+        this.cronJobs = cronJobs || {};
         this.examples = examples || [];
 
         this._execute = execute || ((command, chat, channel, args) => {});
@@ -189,7 +189,7 @@ class StructuredCommand extends Command {
         if (options.usage === undefined)
             throw new TypeError("usage is required");
 
-        super(options.name, options.description, options.execute, options.executeLazy, options.executeCron, options.cronjobs, options.channels, options.examples);
+        super(options.name, options.description, options.execute, options.executeLazy, options.executeCron, options.cronJobs, options.channels, options.examples);
 
         this.usage = options.usage;
 
@@ -266,7 +266,7 @@ class StructuredCommand extends Command {
             this.execute = null;
             this.executeLazy = null;
             this.executeCron = null;
-            this.cronjobs = {};
+            this.cronJobs = {};
             this.channels = [];
             this.examples = [];
         }
@@ -301,8 +301,8 @@ class StructuredCommand extends Command {
             return this;
         }
 
-        setCronjobs(cronjobs) {
-            this.cronjobs = cronjobs;
+        setCronJobs(cronJobs) {
+            this.cronJobs = cronJobs;
             return this;
         }
 
@@ -333,7 +333,7 @@ class StructuredCommand extends Command {
                 execute: this.execute,
                 executeLazy: this.executeLazy,
                 executeCron: this.executeCron,
-                cronjobs: this.cronjobs,
+                cronJobs: this.cronJobs,
                 channels: this.channels,
                 examples: this.examples
             });
@@ -373,7 +373,7 @@ class NaturalCommand extends Command {
         if (options.query === undefined)
             throw new TypeError("query is required");
 
-        super(options.name, options.description, options.execute, options.executeLazy, options.executeCron, options.cronjobs, options.channels, options.examples);
+        super(options.name, options.description, options.execute, options.executeLazy, options.executeCron, options.cronJobs, options.channels, options.examples);
 
         this.query = options.query;
         options.dictionaryPath = options.dictionaryPath || 'dict.json';
@@ -403,7 +403,7 @@ class NaturalCommand extends Command {
             this.execute = null;
             this.executeLazy = null;
             this.executeCron = null;
-            this.cronjobs = {};
+            this.cronJobs = {};
             this.channels = [];
             this.examples = [];
         }
@@ -443,8 +443,8 @@ class NaturalCommand extends Command {
             return this;
         }
 
-        setCronjobs(cronjobs) {
-            this.cronjobs = cronjobs;
+        setCronJobs(cronJobs) {
+            this.cronJobs = cronJobs;
             return this;
         }
 
@@ -476,7 +476,7 @@ class NaturalCommand extends Command {
                 execute: this.execute,
                 executeLazy: this.executeLazy,
                 executeCron: this.executeCron,
-                cronjobs: this.cronjobs,
+                cronJobs: this.cronJobs,
                 channels: this.channels,
                 examples: this.examples
             });
@@ -549,7 +549,7 @@ class Registry {
 
     setCronManager(cronManager) {
         this.cronManager = cronManager;
-        this.cronManager.setWakeLock(true); // REVIEW: 이거 맞나?
+        this.cronManager.setWakeLock(true);
     }
 
     loop(callback) {
@@ -567,9 +567,9 @@ class Registry {
 
         this.data[command.name] = command;
 
-        if (this.cronManager != null && Object.keys(command.cronjobs).length > 0 && command.executeCron != null) {
-            for (let tag in command.cronjobs) {
-                this.cronManager.add(command.cronjobs[tag], () => command.executeCron(tag));
+        if (this.cronManager != null && Object.keys(command.cronJobs).length > 0 && command.executeCron != null) {
+            for (let tag in command.cronJobs) {
+                this.cronManager.add(command.cronJobs[tag], () => command.executeCron(tag));
             }
         }
     }
