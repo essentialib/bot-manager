@@ -20,6 +20,7 @@ var _require3 = require('./Event'),
   Event = _require3.Event;
 var _require4 = require('./Command'),
   CommandRegistry = _require4.CommandRegistry;
+var IS_DIST = true;
 var Bot = /*#__PURE__*/function () {
   function Bot() {
     _classCallCheck(this, Bot);

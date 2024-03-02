@@ -1,17 +1,28 @@
 import { Channel, Chat } from "../DBManager/classes";
 import { CronJobFactor } from "../CronJob/cron-job-manager/lib/cron-job-factor";
+import { DateTime } from "../DateTime";
 
-export type ArgType = string | number;
-export type Query = { [position: string]: null | string | string[] | (() => string) | { [token: string]: null } };
-export type Args = { [key: string]: ArgType | ArgType[] };
-export type Execute = (self: Command, chat: Chat, channel: Channel, args: Args) => void;
-export type ExecuteLazy = (self: Command, chat: Chat, prevChat: Chat, channel: Channel, prevChannel: Channel, args: Args) => void;
-export type ExecuteCron = (tag: string) => void;
+type ChatWithRaw = { [K in keyof Chat]: Chat[K] } & { rawText: string };
 
-export declare abstract class Command {
+type ArgType = [ string, number, DateTime ];
+type ArgTypeUnion = ArgType[number];
+
+type Query = { [position: string]: null | string | (() => string) };
+type Args = { [key: string]: ArgTypeUnion | ArgTypeUnion[] };
+type ArgsWithDate = { [key: string]: ArgTypeUnion | ArgTypeUnion[], date?: DateTime };
+
+type Execute<C> = (self: Command, chat: C, channel: Channel, args: C extends Chat ? Args : (C extends ChatWithRaw ? ArgsWithDate : never)) => void;
+type ExecuteLazy<C> = (self: Command, chat: C, prevChat: C, channel: Channel, prevChannel: Channel, args: C extends Chat ? Args : (C extends ChatWithRaw ? ArgsWithDate : never)) => void;
+type ExecuteCron = (self: Command, tag: string) => void;
+
+type ExecuteWithoutSelf<C> = (chat: C, channel: Channel, args: C extends Chat ? Args : (C extends ChatWithRaw ? ArgsWithDate : never)) => void;
+type ExecuteLazyWithoutSelf<C> = (chat: C, prevChat: C, channel: Channel, prevChannel: Channel, args: C extends Chat ? Args : (C extends ChatWithRaw ? ArgsWithDate : never)) => void;
+type ExecuteCronWithoutSelf = (tag: string) => void;
+
+declare abstract class Command {
 	protected constructor(
 		name: string, description: string,
-		execute?: Execute, executeLazy?: ExecuteLazy, executeCron?: ExecuteCron,
+		_execute?: Execute<any>, _executeLazy?: ExecuteLazy<any>, _executeCron?: ExecuteCron,
 		cronJobs?: { [tag: string]: string }, channels?: Channel[], examples?: string[]
 	);
 	
@@ -20,19 +31,23 @@ export declare abstract class Command {
 	public readonly channels: Channel[];
 	public readonly cronJobs: { [tag: string]: string };
 	public readonly examples: string[];
-	private readonly _execute: Execute;
-	public readonly execute: (chat: Chat, channel: Channel, args: Args) => void;
-	private readonly _executeLazy: ExecuteLazy;
-	public readonly executeLazy: (chat: Chat, prevChat: Chat, channel: Channel, prevChannel: Channel, args: Args) => void;
-	public readonly executeCron: ExecuteCron;
+	private abstract readonly _execute: Execute<any>;
+	private abstract readonly _executeLazy: ExecuteLazy<any>;
+	private readonly _executeCron: ExecuteCron;
 	public readonly lazy: boolean;
 	
-	abstract manual(): string;
+	public abstract readonly execute: ExecuteWithoutSelf<any>;
+	public abstract readonly executeLazy: ExecuteLazyWithoutSelf<any>;
+	public readonly executeCron: ExecuteCronWithoutSelf;
 	
 	register(): void;
+	
+	manual(contents: string[]): string;
+	
+	abstract manual(): string;
 }
 
-export declare abstract class Arg {
+declare abstract class Arg {
 	protected constructor(name: string);
 	
 	public readonly name: string;
@@ -40,10 +55,10 @@ export declare abstract class Arg {
 	
 	abstract toRegExp(): RegExp;
 	
-	abstract parse(value: string): ArgType | false;
+	abstract parse(value: string): ArgTypeUnion | false;
 }
 
-export declare class IntArg extends Arg {
+declare class IntArg extends Arg {
 	constructor(name: string, min?: number, max?: number);
 	
 	public readonly min?: number;
@@ -51,10 +66,10 @@ export declare class IntArg extends Arg {
 	
 	toRegExp(): RegExp;
 	
-	parse(value: string): number | false;
+	parse(value: string): ArgType[0] | false;
 }
 
-export declare class StringArg extends Arg {
+declare class StringArg extends Arg {
 	constructor(name: string, length?: number, minLength?: number, maxLength?: number);
 	
 	public readonly length?: number;
@@ -63,18 +78,26 @@ export declare class StringArg extends Arg {
 	
 	toRegExp(): RegExp;
 	
-	parse(value: string): string | false;
+	parse(value: string): ArgType[1] | false;
 }
 
-export declare interface StructuredCommandOptions {
+declare class DateArg extends Arg {
+	constructor(name: string);
+	
+	toRegExp(): RegExp;
+	
+	parse(value: string): ArgType[2] | false;
+}
+
+declare interface StructuredCommandOptions {
 	name: string;
 	description: string;
 	usage: string;
 	channels?: Channel[];
 	cronJobs?: { [tag: string]: string };
 	examples?: string[];
-	execute?: Execute;
-	executeLazy?: ExecuteLazy;
+	execute?: Execute<Chat>;
+	executeLazy?: ExecuteLazy<Chat>;
 	executeCron?: ExecuteCron;
 }
 
@@ -84,6 +107,12 @@ export declare class StructuredCommand extends Command {
 	public readonly usage: string;
 	public readonly args: Arg[];
 	public readonly regex: RegExp;
+	
+	private readonly _execute: Execute<Chat>;
+	private readonly _executeLazy: ExecuteLazy<Chat>;
+	
+	public readonly execute: ExecuteWithoutSelf<Chat>;
+	public readonly executeLazy: ExecuteLazyWithoutSelf<Chat>;
 	
 	static add(options: StructuredCommandOptions): void;
 	
@@ -100,8 +129,8 @@ export declare namespace StructuredCommand {
 		public channels: Channel[];
 		public cronJobs: { [tag: string]: string };
 		public examples: string[];
-		public execute: Execute | null;
-		public executeLazy: ExecuteLazy | null;
+		public execute: Execute<Chat> | null;
+		public executeLazy: ExecuteLazy<Chat> | null;
 		public executeCron: ExecuteCron | null;
 		
 		setName(name: string): this;
@@ -112,37 +141,42 @@ export declare namespace StructuredCommand {
 		
 		setChannels(...channels: Channel[]): this;
 		
-		setCronJobs(cronJobs: { [tag: string]: string }): this;
-		
 		setExamples(...examples: string[]): this;
 		
-		setExecute(execute: Execute): this;
+		setCronJob(cronJobs: { [tag: string]: string }, execute: ExecuteCron): this;
 		
-		setExecuteLazy(executeLazy: ExecuteLazy): this;
-		
-		setExecuteCron(executeCron: ExecuteCron): this;
+		setExecute(execute: Execute<Chat>, executeLazy?: ExecuteLazy<Chat>): this;
 		
 		build(): StructuredCommand;
 	}
 }
 
-export declare interface NaturalCommandOptions {
+declare interface NaturalCommandOptions {
 	name: string;
 	description: string;
 	query: Query;
+	useDateParse: boolean;
 	channels?: Channel[];
 	cronJobs?: { [tag: string]: string };
 	dictionaryPath?: string;
 	examples?: string[];
-	execute?: Execute;
-	executeLazy?: ExecuteLazy;
+	execute?: Execute<ChatWithRaw>;
+	executeLazy?: ExecuteLazy<ChatWithRaw>;
 	executeCron?: ExecuteCron;
 }
 
 export declare class NaturalCommand extends Command {
 	constructor(options: NaturalCommandOptions);
 	
-	dictionary: { [token: string]: { [aliase: string]: string[] } };
+	public readonly query: Query;
+	public readonly useDateParse: boolean;
+	private readonly map: { [key: string]: string };
+	
+	private readonly _execute: Execute<ChatWithRaw>;
+	private readonly _executeLazy: ExecuteLazy<ChatWithRaw>;
+	
+	public readonly execute: ExecuteWithoutSelf<ChatWithRaw>;
+	public readonly executeLazy: ExecuteLazyWithoutSelf<ChatWithRaw>;
 	
 	static add(options: NaturalCommandOptions): void;
 	
@@ -160,9 +194,10 @@ export declare namespace NaturalCommand {
 		public cronJobs: { [tag: string]: string };
 		public dictionaryPath: string;
 		public examples: string[];
-		public execute: Execute | null;
-		public executeLazy: ExecuteLazy | null;
+		public execute: Execute<ChatWithRaw> | null;
+		public executeLazy: ExecuteLazy<ChatWithRaw> | null;
 		public executeCron: ExecuteCron | null;
+		public useDateParse: boolean;
 		
 		setName(name: string): this;
 		
@@ -172,26 +207,24 @@ export declare namespace NaturalCommand {
 		
 		setChannels(...channels: Channel[]): this;
 		
-		setCronJobs(cronJobs: { [tag: string]: string }): this;
-		
 		setDictionaryPath(dictionaryPath: string): this;
 		
 		setExamples(...examples: string[]): this;
 		
-		setExecute(execute: Execute): this;
+		setCronJob(cronJobs: { [tag: string]: string }, execute: ExecuteCron): this;
 		
-		setExecuteLazy(executeLazy: ExecuteLazy): this;
+		setExecute(execute: Execute<ChatWithRaw>, executeLazy?: ExecuteLazy<ChatWithRaw>): this;
 		
-		setExecuteCron(executeCron: ExecuteCron): this;
+		setUseDateParse(useDateParse: boolean): this;
 		
 		build(): NaturalCommand;
 	}
 }
 
-export declare class Registry {
+declare class Registry {
 	constructor();
 	
-	public data: { [key: string]: Command };
+	public data: Command[];
 	static CommandRegistry: Registry;
 	
 	setCronManager(cronManager: CronJobFactor): void;
@@ -200,7 +233,10 @@ export declare class Registry {
 	
 	register(command: Command): void;
 	
-	get(chat: Chat, channel: Channel): { cmd: Command | null, args: { [key: string]: ArgType | ArgType[] } | null };
+	get(chat: Chat, channel: Channel): {
+		cmd: Command | null,
+		args: { [key: string]: ArgTypeUnion | ArgTypeUnion[] } | null
+	};
 }
 
 export declare const CommandRegistry: Registry;

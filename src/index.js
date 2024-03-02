@@ -3,6 +3,8 @@ const { CronJob } = require('./CronJob');
 const { Event } = require('./Event');
 const { CommandRegistry } = require('./Command');
 
+const IS_DIST = false;
+
 class Bot {
     constructor() {
         this.bot = null;

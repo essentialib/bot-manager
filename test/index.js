@@ -1,12 +1,10 @@
 const BotManager = require('../src').get(BotManager);
-const bot = BotManager.getCurrentBot();
+const bot = BotManager.getCurrentBot({ });
 
 // TODO: natural command와 date parser의 합작
 let { StructuredCommand, NaturalCommand } = require('../src/Command');
 let Event = require('../src/Event').Event;
 let { DateTime } = require('../src/DateTime');
-
-let 공지방 = BotManager.getChannelById('394288262769869');
 
 let cmd = new StructuredCommand.Builder()
     .setName('시간표 명령어')
@@ -39,7 +37,7 @@ bot.addCommand(new StructuredCommand.Builder()
     .setExecuteLazy((self, chat, prevChat, channel, prevChannel, args) => {
         공지방.send('executeLazy: ' + JSON.stringify(args, null, 4));
     })
-    .setCronJobs({
+    .setCronJob({
         '오늘': "20 19 * * *",
         '점심': "21 19 * * *",
         '저녁': "22 19 * * *"
@@ -79,10 +77,13 @@ bot.addCommand(new NaturalCommand.Builder()
 
 bot.on(Event.COMMAND, (chat, channel, command, args) => {
     공지방.send('Event.COMMAND: ' + command.name);
+    chat.att
 });
 
 bot.on(Event.MESSAGE, (chat, channel) => {
     공지방.send('Event.MESSAGE: ' + chat.text);
+    
+    channel.send('Event.MESSAGE: ' + chat.text).then(() => Log.info('send success')).catch(e => Log.error(e));
 });
 
 bot.on(Event.MEMBER_TYPE_CHANGE, (chat, channel) => {

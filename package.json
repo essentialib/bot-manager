@@ -4,8 +4,9 @@
   "description": "주요 카카오톡 라이브러리를 모두 합친 봇 관리자 모듈",
   "main": "dist/index.js",
   "scripts": {
-    "build": "babel src --out-dir dist --extensions \".ts,.js\" --copy-files --ignore \"*.json\"",
-    "build-js": "babel src --out-dir dist --exte  nsions \".js\" --copy-files --ignore \"*.json,*.d.ts\""
+    "set-dist-true": "node set.js",
+    "build": "babel src --out-dir dist --extensions \".ts,.js\" --copy-files --ignore \"*.json\" && npm run set-dist-true",
+    "build-js": "babel src --out-dir dist --extensions \".js\" --copy-files --ignore \"*.json,*.d.ts\" && npm run set-dist-true"
   },
   "repository": {
     "type": "git",
