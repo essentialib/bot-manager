@@ -7,16 +7,16 @@ type ChatWithRaw = { [K in keyof Chat]: Chat[K] } & { rawText: string };
 type ArgType = [ string, number, DateTime ];
 type ArgTypeUnion = ArgType[number];
 
-type Query = { [position: string]: null | string | (() => string) };
+type Query = { [token: string]: null | string | (() => string) };
 type Args = { [key: string]: ArgTypeUnion | ArgTypeUnion[] };
-type ArgsWithDate = { [key: string]: ArgTypeUnion | ArgTypeUnion[], date?: DateTime };
+type ArgsWithDateTime = { [key: string]: ArgTypeUnion | ArgTypeUnion[], datetime?: DateTime };
 
-type Execute<C> = (self: Command, chat: C, channel: Channel, args: C extends Chat ? Args : (C extends ChatWithRaw ? ArgsWithDate : never)) => void;
-type ExecuteLazy<C> = (self: Command, chat: C, prevChat: C, channel: Channel, prevChannel: Channel, args: C extends Chat ? Args : (C extends ChatWithRaw ? ArgsWithDate : never)) => void;
+type Execute<C> = (self: Command, chat: C, channel: Channel, args: C extends Chat ? Args : (C extends ChatWithRaw ? ArgsWithDateTime : never)) => void;
+type ExecuteLazy<C> = (self: Command, chat: C, prevChat: C, channel: Channel, prevChannel: Channel, args: C extends Chat ? Args : (C extends ChatWithRaw ? ArgsWithDateTime : never)) => void;
 type ExecuteCron = (self: Command, tag: string) => void;
 
-type ExecuteWithoutSelf<C> = (chat: C, channel: Channel, args: C extends Chat ? Args : (C extends ChatWithRaw ? ArgsWithDate : never)) => void;
-type ExecuteLazyWithoutSelf<C> = (chat: C, prevChat: C, channel: Channel, prevChannel: Channel, args: C extends Chat ? Args : (C extends ChatWithRaw ? ArgsWithDate : never)) => void;
+type ExecuteWithoutSelf<C> = (chat: C, channel: Channel, args: C extends Chat ? Args : (C extends ChatWithRaw ? ArgsWithDateTime : never)) => void;
+type ExecuteLazyWithoutSelf<C> = (chat: C, prevChat: C, channel: Channel, prevChannel: Channel, args: C extends Chat ? Args : (C extends ChatWithRaw ? ArgsWithDateTime : never)) => void;
 type ExecuteCronWithoutSelf = (tag: string) => void;
 
 declare abstract class Command {
@@ -69,7 +69,7 @@ declare class IntArg extends Arg {
 	parse(value: string): ArgType[0] | false;
 }
 
-declare class StringArg extends Arg {
+declare class StrArg extends Arg {
 	constructor(name: string, length?: number, minLength?: number, maxLength?: number);
 	
 	public readonly length?: number;

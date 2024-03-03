@@ -57,6 +57,13 @@ class Command {
 			''
 		];
 		
+		if (Object.keys(this.cronJobs).length > 0) {
+			ret.push('📌 자동 실행 주기');
+			ret.push('——');
+			ret.push(...Object.entries(this.cronJobs).map(([k, v]) => `· ${k}: ${v}`));
+			ret.push('');
+		}
+		
 		if (this.channels.length > 0) {
 			ret.push('📌 활성화된 방');
 			ret.push('——');
@@ -143,7 +150,7 @@ class IntArg extends Arg {
 	}
 }
 
-class StringArg extends Arg {
+class StrArg extends Arg {
 	constructor(name, length, minLength, maxLength) {
 		super(name);
 		this.length = length;
@@ -220,6 +227,12 @@ class DateArg extends Arg {
 	}
 }
 
+const map = {
+	'int': IntArg,
+	'str': StrArg,
+	'date': DateArg
+};
+
 class StructuredCommand extends Command {
 	constructor(options) {
 		if (options.usage == null)
@@ -248,12 +261,6 @@ class StructuredCommand extends Command {
 				
 				return splited;
 			});
-			
-			const map = {
-				'int': IntArg,
-				'string': StringArg,
-				'date': DateArg
-			}
 			
 			let k;
 			for (let key in map) {
@@ -419,7 +426,7 @@ class NaturalCommand extends Command {
 		options.dictionaryPath = options.dictionaryPath || 'dict.json';
 		
 		let dictionary = IS_DIST ?
-			JSON.parse(FileStream.read(`/sdcard/msgbot/global_modules/command-handler/${options.dictionaryPath}`)) :
+			JSON.parse(FileStream.read(`/sdcard/msgbot/global_modules/bot-manager/Command/${options.dictionaryPath}`)) :
 			require(`./${options.dictionaryPath}`);
 		
 		this.map = {};
@@ -630,13 +637,13 @@ class Registry {
 			}
 			else if (cmd instanceof NaturalCommand) {
 				let rawText = chat.text;
-				let text = chat.text.replace(/ +/g, ' ');
+				let text = chat.text.replace(/ +/g, ' ').replace(/[!"#$%&'()*+,\-./:;<=>?@[\\\]^_`{|}~]/g, ""); // 구두점 제거
 				
 				args = Object.assign({}, cmd.query);    // 기본값을 가진 객체를 깊은 복사
 				
 				if (cmd.useDateParse) {
 					let { parse, string } = DateTime.parseWithFilteredString(text);
-					args.date = parse;
+					args.datetime = parse;
 					
 					if (parse != null)
 						text = string;

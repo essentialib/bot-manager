@@ -27,8 +27,8 @@ new NaturalCommand.Builder()
     .setQuery({})
     .setExamples('오늘 병원 하기', '숙제 하기 다음 주 월요일')
     .setUseDateParse(true)
-    .setExecute((self, chat, channel, { date }) => {
-        console.log('할 일:', chat.text, '| 날짜:', date.humanize());
+    .setExecute((self, chat, channel, { datetime }) => {
+        console.log('할 일:', chat.text, '| 날짜:', datetime.humanize());
     })
     .build().register();
 
@@ -42,8 +42,8 @@ new NaturalCommand.Builder()
     })
     .setQuery({ meal: null })
     .setUseDateParse(true)
-    .setExecute((self, chat, channel, { meal, date }) => {
-        console.log('급식:', meal, '| 날짜:', date.humanize(), '| text:', chat.text, '| rawText:', chat.rawText);
+    .setExecute((self, chat, channel, { meal, datetime }) => {
+        console.log('급식:', meal, '| 날짜:', datetime.humanize(), '| text:', chat.text, '| rawText:', chat.rawText);
         console.log(self.manual());
     })
     .build().register();

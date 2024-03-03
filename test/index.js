@@ -1,7 +1,6 @@
 const BotManager = require('../src').get(BotManager);
 const bot = BotManager.getCurrentBot({ });
 
-// TODO: natural command와 date parser의 합작
 let { StructuredCommand, NaturalCommand } = require('../src/Command');
 let Event = require('../src/Event').Event;
 let { DateTime } = require('../src/DateTime');
@@ -64,8 +63,7 @@ bot.addCommand(new NaturalCommand.Builder()
     .setCronJobs({ '오늘': '0 0 * * *', '점심': '40 11 * * *', '저녁': '20 16 * * *' })
     .setExamples('오늘 밥', '오늘 급식', '다음 주 급식', '급식 저녁', '...등 자유로운 형태')
     .setQuery({
-        'meal': null,
-        'date': null
+        'meal': null
     })
     .setExecute((self, chat, channel, args) => {
 

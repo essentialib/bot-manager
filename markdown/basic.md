@@ -12,7 +12,14 @@ const bot = BotManager.getCurrentBot();
 ```js
 const Event = require('bot-manager/Event').Event;
 ```
-위와 같이 하위 폴더 `Event`를 가져와 사용한다.
+혹은
+```js
+const { Event } = require('bot-manager/Event');
+```
+위와 같이 하위 폴더 `Event`를 가져와 사용한다.  
+
+> [!CAUTION]  
+> 첫 번째 방법의 경우 `require('bot-manager/Event')` 가 아니라 `require('bot-manager/Event').Event` 이다.
 
 ```js
 bot.on(Event.MESSAGE, (chat, channel) => {
@@ -69,7 +76,7 @@ bot.on(Event.COMMAND, (chat, channel, command, args) => {
     channel.send(`명령어: ${command.name}, 인자: ${args.join(", ")}`);
 });
 ```
-`COMMAND` 이벤트는 추후, `Command` 모듈을 설명할 때 더 자세히 설명한다. 
+`COMMAND` 이벤트는 추후, `Command` 모듈을 설명할 때 더 자세히 설명한다. [여기](command.md/#eventcommand) 
 
 ```js
 bot.on(Event.JOIN, (chat, channel) => {
