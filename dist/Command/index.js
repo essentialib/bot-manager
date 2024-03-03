@@ -31,6 +31,7 @@ function _toPropertyKey(t) { var i = _toPrimitive(t, "string"); return "symbol" 
 function _toPrimitive(t, r) { if ("object" != _typeof(t) || !t) return t; var e = t[Symbol.toPrimitive]; if (void 0 !== e) { var i = e.call(t, r || "default"); if ("object" != _typeof(i)) return i; throw new TypeError("@@toPrimitive must return a primitive value."); } return ("string" === r ? String : Number)(t); }
 var _require = require('../DateTime'),
   DateTime = _require.DateTime;
+var $ = "/sdcard/msgbot/global_modules/bot-manager/Command";
 var IS_DIST = true;
 var COMPRESS = "\u200B".repeat(500);
 var Command = /*#__PURE__*/function () {
@@ -424,7 +425,7 @@ var NaturalCommand = /*#__PURE__*/function (_Command2) {
     _this6.query = options.query;
     _this6.useDateParse = options.useDateParse;
     options.dictionaryPath = options.dictionaryPath || 'dict.json';
-    var dictionary = IS_DIST ? JSON.parse(FileStream.read("/sdcard/msgbot/global_modules/bot-manager/Command/".concat(options.dictionaryPath))) : require("./".concat(options.dictionaryPath));
+    var dictionary = IS_DIST ? JSON.parse(FileStream.read("".concat($, "/").concat(options.dictionaryPath))) : require("./".concat(options.dictionaryPath));
     _this6.map = {};
     for (var tok in dictionary) {
       var _iterator2 = _createForOfIteratorHelper(dictionary[tok]),

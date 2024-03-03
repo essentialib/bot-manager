@@ -1,5 +1,5 @@
 const { DateTime } = require('../DateTime');
-
+const $ = `/sdcard/msgbot/global_modules/bot-manager/Command`;
 const IS_DIST = false;
 const COMPRESS = '\u200b'.repeat(500);
 
@@ -426,7 +426,7 @@ class NaturalCommand extends Command {
 		options.dictionaryPath = options.dictionaryPath || 'dict.json';
 		
 		let dictionary = IS_DIST ?
-			JSON.parse(FileStream.read(`/sdcard/msgbot/global_modules/bot-manager/Command/${options.dictionaryPath}`)) :
+			JSON.parse(FileStream.read(`${$}/${options.dictionaryPath}`)) :
 			require(`./${options.dictionaryPath}`);
 		
 		this.map = {};

@@ -165,6 +165,7 @@ function _toPrimitive(t, r) {
   return ("string" === r ? String : Number)(t);
 }
 var IS_DIST = true;
+var $ = "/sdcard/msgbot/global_modules/bot-manager/DateTime";
 var $D = !IS_DIST ? global.Date : Date;
 var Duration = /*#__PURE__*/function () {
   function Duration(millisecond) {
@@ -407,7 +408,7 @@ var DateTime = /*#__PURE__*/function () {
   }, {
     key: "weekdayName",
     get: function get() {
-      var cultureInfo = IS_DIST ? JSON.parse(FileStream.read("/sdcard/msgbot/global_modules/bot-manager/DateTime/globalization/".concat(this.locale, ".json"))) : require("./globalization/".concat(this.locale, ".json"));
+      var cultureInfo = IS_DIST ? JSON.parse(FileStream.read("{$}/globalization/".concat(this.locale, ".json"))) : require("./globalization/".concat(this.locale, ".json"));
       if (!cultureInfo) throw new Error('Invalid locale, not found ' + this.locale);
       return cultureInfo['WW'][this.weekday];
     }
@@ -461,7 +462,7 @@ var DateTime = /*#__PURE__*/function () {
     value: function toString(formatString) {
       var _formatString,
         _this = this;
-      var cultureInfo = IS_DIST ? JSON.parse(FileStream.read("/sdcard/msgbot/global_modules/bot-manager/DateTime/globalization/".concat(this.locale, ".json"))) : require("./globalization/".concat(this.locale, ".json"));
+      var cultureInfo = IS_DIST ? JSON.parse(FileStream.read("".concat($, "/globalization/").concat(this.locale, ".json"))) : require("./globalization/".concat(this.locale, ".json"));
       if (!cultureInfo) throw new Error('Invalid locale, not found ' + this.locale);
       formatString = (_formatString = formatString) !== null && _formatString !== void 0 ? _formatString : cultureInfo['formats']['full'];
       return formatString.replace(/ss?s?|mm?|hh?|ii?|t|DD?|WW?|MM?M?M?|YY(?:YY)?/g, function (match) {
@@ -514,6 +515,7 @@ var DateTime = /*#__PURE__*/function () {
   }, {
     key: "humanize",
     value: function humanize() {
+      var ignoreTime = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : false;
       var now = DateTime.now();
       var str = {
         date: '',
@@ -564,27 +566,29 @@ var DateTime = /*#__PURE__*/function () {
         else if (this.year === now.year) str.date = "".concat(this.month, "\uC6D4 ").concat(this.day, "\uC77C");else str.date = "".concat(this.year, "\uB144 ").concat(this.month, "\uC6D4 ").concat(this.day, "\uC77C");
       }
       var isRelative = false;
-      if (this.hour === 0 && this.minute === 0 && this.second === 0) str.time = ""; // '오늘 자정'은 마치 내일 0시를 말하는 것 같아서 그냥 '오늘'로 표시
-      else if (this.hour === 12 && this.minute === 0 && this.second === 0) str.time = "정오";else {
-        var sign = secDiff < 0 ? '전' : '후';
-        var amountSec = Math.abs(secDiff);
-        var hour = Math.floor(amountSec / 3600);
-        var minute = Math.floor(amountSec % 3600 / 60);
-        var second = amountSec % 60;
-        if (hour < 6) {
-          isRelative = true;
-          if (hour !== 0) str.time += "".concat(hour, "\uC2DC\uAC04 ");
-          if (minute !== 0) str.time += "".concat(minute, "\uBD84 ");
-          // if (second !== 0)
-          // 	str.time += `${second}초 `;
-          // 초와 밀리초는 수행 시간에도 영향을 받고, 너무 세부적이므로 무시. 나중에 config 로 설정할 수 있게?
+      if (!ignoreTime) {
+        if (this.hour === 0 && this.minute === 0 && this.second === 0) str.time = ""; // '오늘 자정'은 마치 내일 0시를 말하는 것 같아서 그냥 '오늘'로 표시
+        else if (this.hour === 12 && this.minute === 0 && this.second === 0) str.time = "정오";else {
+          var sign = secDiff < 0 ? '전' : '후';
+          var amountSec = Math.abs(secDiff);
+          var hour = Math.floor(amountSec / 3600);
+          var minute = Math.floor(amountSec % 3600 / 60);
+          var second = amountSec % 60;
+          if (hour < 6) {
+            isRelative = true;
+            if (hour !== 0) str.time += "".concat(hour, "\uC2DC\uAC04 ");
+            if (minute !== 0) str.time += "".concat(minute, "\uBD84 ");
+            // if (second !== 0)
+            // 	str.time += `${second}초 `;
+            // 초와 밀리초는 수행 시간에도 영향을 받고, 너무 세부적이므로 무시. 나중에 config 로 설정할 수 있게?
 
-          if (str.time !== '') str.time = str.time.trim() + " ".concat(sign);
-        } else str.time = this.toString("t h시 m분").replace(' 0분', '');
+            if (str.time !== '') str.time = str.time.trim() + " ".concat(sign);
+          } else str.time = this.toString("t h시 m분").replace(' 0분', '');
+        }
       }
-      if (this.eq(now, true)) return '지금';else if (isRelative)
+      if (this.eq(now, true)) return '지금';else if (!ignoreTime && isRelative)
         // 상대적인 시간이면 최대 6시간 차이니까 날짜를 생략
-        return str.time;else if (str.date === '오늘' && str.time !== '')
+        return str.time;else if (!ignoreTime && str.date === '오늘' && str.time !== '')
         // 오늘인데 시간이 있으면 날짜를 생략
         return str.time;else return "".concat(str.date, " ").concat(str.time).trim();
     }
@@ -896,7 +900,7 @@ var DateTime = /*#__PURE__*/function () {
     key: "parseWithFilteredString",
     value: function parseWithFilteredString(dateString) {
       var locale = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 'ko-KR';
-      var cultureInfo = IS_DIST ? JSON.parse(FileStream.read("/sdcard/msgbot/global_modules/bot-manager/DateTime/globalization/".concat(locale, ".json"))) : require("./globalization/".concat(locale, ".json"));
+      var cultureInfo = IS_DIST ? JSON.parse(FileStream.read("".concat($, "/globalization/").concat(locale, ".json"))) : require("./globalization/".concat(locale, ".json"));
       if (!cultureInfo) throw new Error('Invalid locale, not found ' + locale);
       var replaces = Object.entries(cultureInfo['replaces']);
       replaces.sort(function (a, b) {
@@ -1188,6 +1192,9 @@ var DateTime = /*#__PURE__*/function () {
             var today = now.weekday - 1; // 일월화수목금토가 아니고 월화수목금토일
             var start = (((_ret$day3 = ret['day']) !== null && _ret$day3 !== void 0 ? _ret$day3 : 0) + today) % 7;
             var dest = DateTime.getWeekdayFromName(arr.groups.week, true);
+
+            // console.log(today, start, dest);    // FIXME: debug
+
             ret['day'] = ((_ret$day4 = ret['day']) !== null && _ret$day4 !== void 0 ? _ret$day4 : 0) + (dest - start);
           }
         }
@@ -1204,6 +1211,9 @@ var DateTime = /*#__PURE__*/function () {
       if (Object.keys(common_parsed).length === 0 && Object.keys(relative_parsed).length === 0) return {
         string: filteredString.trim()
       };
+
+      // console.log(common_parsed, relative_parsed);    // FIXME: debug
+
       var units = ['year', 'month', 'day', 'hour', 'minute', 'second', 'millisecond'];
 
       // '3월 4일' 이라고 하면 '현재년도 3월 4일 0시 0분 0초'로 해석되어야 함. 즉, 마지막으로 데이터가 존재하는 unit 까지만 현재 날짜로 지정.
@@ -1247,7 +1257,7 @@ var DateTime = /*#__PURE__*/function () {
     // 	dateString = dateString.trim().replace(/\s+/g, ' ');
     //
     // 	const cultureInfo = IS_DIST
-    // 		? JSON.parse(FileStream.read(`/sdcard/msgbot/global_modules/bot-manager/DateTime/globalization/${locale}.json`))
+    // 		? JSON.parse(FileStream.read(`${$}/globalization/${locale}.json`))
     // 		: require(`./globalization/${locale}.json`);
     //
     // 	if (!cultureInfo)
@@ -1941,7 +1951,7 @@ var DateTime = /*#__PURE__*/function () {
     value: function getWeekdayFromName(weekDayName) {
       var startOnMon = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : false;
       var locale = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : 'ko-KR';
-      var cultureInfo = IS_DIST ? JSON.parse(FileStream.read("/sdcard/msgbot/global_modules/bot-manager/DateTime/globalization/".concat(locale, ".json"))) : require("./globalization/".concat(locale, ".json"));
+      var cultureInfo = IS_DIST ? JSON.parse(FileStream.read("".concat($, "/globalization/").concat(locale, ".json"))) : require("./globalization/".concat(locale, ".json"));
       if (!cultureInfo) throw new Error('Invalid locale, not found ' + locale);
       var W = cultureInfo['W'];
       var WW = cultureInfo['WW'];
