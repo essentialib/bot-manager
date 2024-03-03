@@ -3,11 +3,7 @@
 function _typeof(o) { "@babel/helpers - typeof"; return _typeof = "function" == typeof Symbol && "symbol" == typeof Symbol.iterator ? function (o) { return typeof o; } : function (o) { return o && "function" == typeof Symbol && o.constructor === Symbol && o !== Symbol.prototype ? "symbol" : typeof o; }, _typeof(o); }
 var _StructuredCommand, _NaturalCommand, _Registry;
 function _createForOfIteratorHelper(o, allowArrayLike) { var it = typeof Symbol !== "undefined" && o[Symbol.iterator] || o["@@iterator"]; if (!it) { if (Array.isArray(o) || (it = _unsupportedIterableToArray(o)) || allowArrayLike && o && typeof o.length === "number") { if (it) o = it; var i = 0; var F = function F() {}; return { s: F, n: function n() { if (i >= o.length) return { done: true }; return { done: false, value: o[i++] }; }, e: function e(_e) { throw _e; }, f: F }; } throw new TypeError("Invalid attempt to iterate non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); } var normalCompletion = true, didErr = false, err; return { s: function s() { it = it.call(o); }, n: function n() { var step = it.next(); normalCompletion = step.done; return step; }, e: function e(_e2) { didErr = true; err = _e2; }, f: function f() { try { if (!normalCompletion && it["return"] != null) it["return"](); } finally { if (didErr) throw err; } } }; }
-function _slicedToArray(arr, i) { return _arrayWithHoles(arr) || _iterableToArrayLimit(arr, i) || _unsupportedIterableToArray(arr, i) || _nonIterableRest(); }
-function _iterableToArrayLimit(r, l) { var t = null == r ? null : "undefined" != typeof Symbol && r[Symbol.iterator] || r["@@iterator"]; if (null != t) { var e, n, i, u, a = [], f = !0, o = !1; try { if (i = (t = t.call(r)).next, 0 === l) { if (Object(t) !== t) return; f = !1; } else for (; !(f = (e = i.call(t)).done) && (a.push(e.value), a.length !== l); f = !0); } catch (r) { o = !0, n = r; } finally { try { if (!f && null != t["return"] && (u = t["return"](), Object(u) !== u)) return; } finally { if (o) throw n; } } return a; } }
 function _toArray(arr) { return _arrayWithHoles(arr) || _iterableToArray(arr) || _unsupportedIterableToArray(arr) || _nonIterableRest(); }
-function _nonIterableRest() { throw new TypeError("Invalid attempt to destructure non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); }
-function _arrayWithHoles(arr) { if (Array.isArray(arr)) return arr; }
 function _get() { if (typeof Reflect !== "undefined" && Reflect.get) { _get = Reflect.get.bind(); } else { _get = function _get(target, property, receiver) { var base = _superPropBase(target, property); if (!base) return; var desc = Object.getOwnPropertyDescriptor(base, property); if (desc.get) { return desc.get.call(arguments.length < 3 ? target : receiver); } return desc.value; }; } return _get.apply(this, arguments); }
 function _superPropBase(object, property) { while (!Object.prototype.hasOwnProperty.call(object, property)) { object = _getPrototypeOf(object); if (object === null) break; } return object; }
 function _defineProperty(obj, key, value) { key = _toPropertyKey(key); if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
@@ -18,6 +14,10 @@ function _isNativeReflectConstruct() { try { var t = !Boolean.prototype.valueOf.
 function _getPrototypeOf(o) { _getPrototypeOf = Object.setPrototypeOf ? Object.getPrototypeOf.bind() : function _getPrototypeOf(o) { return o.__proto__ || Object.getPrototypeOf(o); }; return _getPrototypeOf(o); }
 function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function"); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, writable: true, configurable: true } }); Object.defineProperty(subClass, "prototype", { writable: false }); if (superClass) _setPrototypeOf(subClass, superClass); }
 function _setPrototypeOf(o, p) { _setPrototypeOf = Object.setPrototypeOf ? Object.setPrototypeOf.bind() : function _setPrototypeOf(o, p) { o.__proto__ = p; return o; }; return _setPrototypeOf(o, p); }
+function _slicedToArray(arr, i) { return _arrayWithHoles(arr) || _iterableToArrayLimit(arr, i) || _unsupportedIterableToArray(arr, i) || _nonIterableRest(); }
+function _nonIterableRest() { throw new TypeError("Invalid attempt to destructure non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); }
+function _iterableToArrayLimit(r, l) { var t = null == r ? null : "undefined" != typeof Symbol && r[Symbol.iterator] || r["@@iterator"]; if (null != t) { var e, n, i, u, a = [], f = !0, o = !1; try { if (i = (t = t.call(r)).next, 0 === l) { if (Object(t) !== t) return; f = !1; } else for (; !(f = (e = i.call(t)).done) && (a.push(e.value), a.length !== l); f = !0); } catch (r) { o = !0, n = r; } finally { try { if (!f && null != t["return"] && (u = t["return"](), Object(u) !== u)) return; } finally { if (o) throw n; } } return a; } }
+function _arrayWithHoles(arr) { if (Array.isArray(arr)) return arr; }
 function _toConsumableArray(arr) { return _arrayWithoutHoles(arr) || _iterableToArray(arr) || _unsupportedIterableToArray(arr) || _nonIterableSpread(); }
 function _nonIterableSpread() { throw new TypeError("Invalid attempt to spread non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); }
 function _unsupportedIterableToArray(o, minLen) { if (!o) return; if (typeof o === "string") return _arrayLikeToArray(o, minLen); var n = Object.prototype.toString.call(o).slice(8, -1); if (n === "Object" && o.constructor) n = o.constructor.name; if (n === "Map" || n === "Set") return Array.from(o); if (n === "Arguments" || /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(n)) return _arrayLikeToArray(o, minLen); }
@@ -73,6 +73,17 @@ var Command = /*#__PURE__*/function () {
     key: "manual",
     value: function manual(contents) {
       var ret = ["\uD83E\uDDE9 `".concat(this.name, "` \uBA85\uB839\uC5B4 \uB3C4\uC6C0\uB9D0").concat(COMPRESS), '——————————', this.description, '', '📌 인자', '——'].concat(_toConsumableArray(contents), ['']);
+      if (Object.keys(this.cronJobs).length > 0) {
+        ret.push('📌 자동 실행 주기');
+        ret.push('——');
+        ret.push.apply(ret, _toConsumableArray(Object.entries(this.cronJobs).map(function (_ref) {
+          var _ref2 = _slicedToArray(_ref, 2),
+            k = _ref2[0],
+            v = _ref2[1];
+          return "\xB7 ".concat(k, ": ").concat(v);
+        })));
+        ret.push('');
+      }
       if (this.channels.length > 0) {
         ret.push('📌 활성화된 방');
         ret.push('——');
@@ -153,18 +164,18 @@ var IntArg = /*#__PURE__*/function (_Arg) {
   }]);
   return IntArg;
 }(Arg);
-var StringArg = /*#__PURE__*/function (_Arg2) {
-  _inherits(StringArg, _Arg2);
-  function StringArg(name, length, minLength, maxLength) {
+var StrArg = /*#__PURE__*/function (_Arg2) {
+  _inherits(StrArg, _Arg2);
+  function StrArg(name, length, minLength, maxLength) {
     var _this3;
-    _classCallCheck(this, StringArg);
-    _this3 = _callSuper(this, StringArg, [name]);
+    _classCallCheck(this, StrArg);
+    _this3 = _callSuper(this, StrArg, [name]);
     _this3.length = length;
     _this3.minLength = minLength;
     _this3.maxLength = maxLength;
     return _this3;
   }
-  _createClass(StringArg, [{
+  _createClass(StrArg, [{
     key: "toRegExp",
     value: function toRegExp() {
       if (this.length && (this.minLength || this.maxLength)) throw new Error("length cannot be used with minLength or maxLength");
@@ -189,7 +200,7 @@ var StringArg = /*#__PURE__*/function (_Arg2) {
       }
     }
   }]);
-  return StringArg;
+  return StrArg;
 }(Arg);
 var DateArg = /*#__PURE__*/function (_Arg3) {
   _inherits(DateArg, _Arg3);
@@ -213,6 +224,11 @@ var DateArg = /*#__PURE__*/function (_Arg3) {
   }]);
   return DateArg;
 }(Arg);
+var map = {
+  'int': IntArg,
+  'str': StrArg,
+  'date': DateArg
+};
 var StructuredCommand = /*#__PURE__*/function (_Command) {
   _inherits(StructuredCommand, _Command);
   function StructuredCommand(options) {
@@ -242,11 +258,6 @@ var StructuredCommand = /*#__PURE__*/function (_Command) {
         }
         return splited;
       });
-      var map = {
-        'int': IntArg,
-        'string': StringArg,
-        'date': DateArg
-      };
       var k;
       for (var key in map) {
         if (type.startsWith(key)) {
@@ -413,7 +424,7 @@ var NaturalCommand = /*#__PURE__*/function (_Command2) {
     _this6.query = options.query;
     _this6.useDateParse = options.useDateParse;
     options.dictionaryPath = options.dictionaryPath || 'dict.json';
-    var dictionary = IS_DIST ? JSON.parse(FileStream.read("/sdcard/msgbot/global_modules/command-handler/".concat(options.dictionaryPath))) : require("./".concat(options.dictionaryPath));
+    var dictionary = IS_DIST ? JSON.parse(FileStream.read("/sdcard/msgbot/global_modules/bot-manager/Command/".concat(options.dictionaryPath))) : require("./".concat(options.dictionaryPath));
     _this6.map = {};
     for (var tok in dictionary) {
       var _iterator2 = _createForOfIteratorHelper(dictionary[tok]),
@@ -640,14 +651,15 @@ var Registry = /*#__PURE__*/function () {
                 return 0; // continue
             } else if (cmd instanceof NaturalCommand) {
               var rawText = chat.text;
-              var text = chat.text.replace(/ +/g, ' ');
+              var text = chat.text.replace(/ +/g, ' ').replace(/[!"#$%&'()*+,\-./:;<=>?@[\\\]^_`{|}~]/g, ""); // 구두점 제거
+
               args = Object.assign({}, cmd.query); // 기본값을 가진 객체를 깊은 복사
 
               if (cmd.useDateParse) {
                 var _DateTime$parseWithFi = DateTime.parseWithFilteredString(text),
                   parse = _DateTime$parseWithFi.parse,
                   string = _DateTime$parseWithFi.string;
-                args.date = parse;
+                args.datetime = parse;
                 if (parse != null) text = string;
               }
 

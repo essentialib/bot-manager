@@ -1188,9 +1188,6 @@ var DateTime = /*#__PURE__*/function () {
             var today = now.weekday - 1; // 일월화수목금토가 아니고 월화수목금토일
             var start = (((_ret$day3 = ret['day']) !== null && _ret$day3 !== void 0 ? _ret$day3 : 0) + today) % 7;
             var dest = DateTime.getWeekdayFromName(arr.groups.week, true);
-
-            // console.log(today, start, dest);    // FIXME: debug
-
             ret['day'] = ((_ret$day4 = ret['day']) !== null && _ret$day4 !== void 0 ? _ret$day4 : 0) + (dest - start);
           }
         }
@@ -1207,9 +1204,6 @@ var DateTime = /*#__PURE__*/function () {
       if (Object.keys(common_parsed).length === 0 && Object.keys(relative_parsed).length === 0) return {
         string: filteredString.trim()
       };
-
-      // console.log(common_parsed, relative_parsed);    // FIXME: debug
-
       var units = ['year', 'month', 'day', 'hour', 'minute', 'second', 'millisecond'];
 
       // '3월 4일' 이라고 하면 '현재년도 3월 4일 0시 0분 0초'로 해석되어야 함. 즉, 마지막으로 데이터가 존재하는 unit 까지만 현재 날짜로 지정.
