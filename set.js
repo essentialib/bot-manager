@@ -26,7 +26,7 @@ function dfs(dir) {
 function update(filePath) {
 	const content = fs.readFileSync(filePath, 'utf-8')
 		.replace('var IS_DIST = false;', 'var IS_DIST = true;')
-		.replace(/require\(['"]\.\.\/src['"]\)/g, "require('bot-manager')");
+		.replace(/\((['"])\.\.\/src/g, "($1bot-manager");
 	
 	fs.writeFileSync(filePath, content, 'utf-8');
 	

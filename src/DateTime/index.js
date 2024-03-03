@@ -258,7 +258,7 @@ var DateTime = /*#__PURE__*/function () {
   }, {
     key: "weekdayName",
     get: function get() {
-      var cultureInfo = IS_DIST ? JSON.parse(FileStream.read("/sdcard/msgbot/global_modules/datetime/globalization/".concat(this.locale, ".json"))) : require("./globalization/".concat(this.locale, ".json"));
+      var cultureInfo = IS_DIST ? JSON.parse(FileStream.read("/sdcard/msgbot/global_modules/bot-manager/DateTime/globalization/".concat(this.locale, ".json"))) : require("./globalization/".concat(this.locale, ".json"));
       if (!cultureInfo) throw new Error('Invalid locale, not found ' + this.locale);
       return cultureInfo['WW'][this.weekday];
     }
@@ -312,7 +312,7 @@ var DateTime = /*#__PURE__*/function () {
     value: function toString(formatString) {
       var _formatString,
         _this = this;
-      var cultureInfo = IS_DIST ? JSON.parse(FileStream.read("/sdcard/msgbot/global_modules/datetime/globalization/".concat(this.locale, ".json"))) : require("./globalization/".concat(this.locale, ".json"));
+      var cultureInfo = IS_DIST ? JSON.parse(FileStream.read("/sdcard/msgbot/global_modules/bot-manager/DateTime/globalization/".concat(this.locale, ".json"))) : require("./globalization/".concat(this.locale, ".json"));
       if (!cultureInfo) throw new Error('Invalid locale, not found ' + this.locale);
       formatString = (_formatString = formatString) !== null && _formatString !== void 0 ? _formatString : cultureInfo['formats']['full'];
       return formatString.replace(/ss?s?|mm?|hh?|ii?|t|DD?|WW?|MM?M?M?|YY(?:YY)?/g, function (match) {
@@ -747,7 +747,7 @@ var DateTime = /*#__PURE__*/function () {
     key: "parseWithFilteredString",
     value: function parseWithFilteredString(dateString) {
       var locale = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 'ko-KR';
-      var cultureInfo = IS_DIST ? JSON.parse(FileStream.read("/sdcard/msgbot/global_modules/datetime/globalization/".concat(locale, ".json"))) : require("./globalization/".concat(locale, ".json"));
+      var cultureInfo = IS_DIST ? JSON.parse(FileStream.read("/sdcard/msgbot/global_modules/bot-manager/DateTime/globalization/".concat(locale, ".json"))) : require("./globalization/".concat(locale, ".json"));
       if (!cultureInfo) throw new Error('Invalid locale, not found ' + locale);
       var replaces = Object.entries(cultureInfo['replaces']);
       replaces.sort(function (a, b) {
@@ -1100,7 +1100,7 @@ var DateTime = /*#__PURE__*/function () {
     // 	dateString = dateString.trim().replace(/\s+/g, ' ');
     //
     // 	const cultureInfo = IS_DIST
-    // 		? JSON.parse(FileStream.read(`/sdcard/msgbot/global_modules/datetime/globalization/${locale}.json`))
+    // 		? JSON.parse(FileStream.read(`/sdcard/msgbot/global_modules/bot-manager/DateTime/globalization/${locale}.json`))
     // 		: require(`./globalization/${locale}.json`);
     //
     // 	if (!cultureInfo)
@@ -1794,7 +1794,7 @@ var DateTime = /*#__PURE__*/function () {
     value: function getWeekdayFromName(weekDayName) {
       var startOnMon = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : false;
       var locale = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : 'ko-KR';
-      var cultureInfo = IS_DIST ? JSON.parse(FileStream.read("/sdcard/msgbot/global_modules/datetime/globalization/".concat(locale, ".json"))) : require("./globalization/".concat(locale, ".json"));
+      var cultureInfo = IS_DIST ? JSON.parse(FileStream.read("/sdcard/msgbot/global_modules/bot-manager/DateTime/globalization/".concat(locale, ".json"))) : require("./globalization/".concat(locale, ".json"));
       if (!cultureInfo) throw new Error('Invalid locale, not found ' + locale);
       var W = cultureInfo['W'];
       var WW = cultureInfo['WW'];
