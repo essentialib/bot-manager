@@ -1,169 +1,26 @@
 "use strict";
 
-function _wrapRegExp() {
-  _wrapRegExp = function _wrapRegExp(e, r) {
-    return new BabelRegExp(e, void 0, r);
-  };
-  var e = RegExp.prototype,
-    r = new WeakMap();
-  function BabelRegExp(e, t, p) {
-    var o = new RegExp(e, t);
-    return r.set(o, p || r.get(e)), _setPrototypeOf(o, BabelRegExp.prototype);
-  }
-  function buildGroups(e, t) {
-    var p = r.get(t);
-    return Object.keys(p).reduce(function (r, t) {
-      var o = p[t];
-      if ("number" == typeof o) r[t] = e[o];else {
-        for (var i = 0; void 0 === e[o[i]] && i + 1 < o.length;) i++;
-        r[t] = e[o[i]];
-      }
-      return r;
-    }, Object.create(null));
-  }
-  return _inherits(BabelRegExp, RegExp), BabelRegExp.prototype.exec = function (r) {
-    var t = e.exec.call(this, r);
-    if (t) {
-      t.groups = buildGroups(t, this);
-      var p = t.indices;
-      p && (p.groups = buildGroups(p, this));
-    }
-    return t;
-  }, BabelRegExp.prototype[Symbol.replace] = function (t, p) {
-    if ("string" == typeof p) {
-      var o = r.get(this);
-      return e[Symbol.replace].call(this, t, p.replace(/\$<([^>]+)>/g, function (e, r) {
-        var t = o[r];
-        return "$" + (Array.isArray(t) ? t.join("$") : t);
-      }));
-    }
-    if ("function" == typeof p) {
-      var i = this;
-      return e[Symbol.replace].call(this, t, function () {
-        var e = arguments;
-        return "object" != _typeof(e[e.length - 1]) && (e = [].slice.call(e)).push(buildGroups(e, i)), p.apply(this, e);
-      });
-    }
-    return e[Symbol.replace].call(this, t, p);
-  }, _wrapRegExp.apply(this, arguments);
+function _objectEntries(obj) {
+  var entries = [];
+  var keys = Object.keys(obj);
+  for (var k = 0; k < keys.length; k++) entries.push([keys[k], obj[keys[k]]]);
+  return entries;
 }
-function _inherits(subClass, superClass) {
-  if (typeof superClass !== "function" && superClass !== null) {
-    throw new TypeError("Super expression must either be null or a function");
-  }
-  subClass.prototype = Object.create(superClass && superClass.prototype, {
-    constructor: {
-      value: subClass,
-      writable: true,
-      configurable: true
-    }
-  });
-  Object.defineProperty(subClass, "prototype", {
-    writable: false
-  });
-  if (superClass) _setPrototypeOf(subClass, superClass);
-}
-function _setPrototypeOf(o, p) {
-  _setPrototypeOf = Object.setPrototypeOf ? Object.setPrototypeOf.bind() : function _setPrototypeOf(o, p) {
-    o.__proto__ = p;
-    return o;
-  };
-  return _setPrototypeOf(o, p);
-}
-function _slicedToArray(arr, i) {
-  return _arrayWithHoles(arr) || _iterableToArrayLimit(arr, i) || _unsupportedIterableToArray(arr, i) || _nonIterableRest();
-}
-function _nonIterableRest() {
-  throw new TypeError("Invalid attempt to destructure non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method.");
-}
-function _unsupportedIterableToArray(o, minLen) {
-  if (!o) return;
-  if (typeof o === "string") return _arrayLikeToArray(o, minLen);
-  var n = Object.prototype.toString.call(o).slice(8, -1);
-  if (n === "Object" && o.constructor) n = o.constructor.name;
-  if (n === "Map" || n === "Set") return Array.from(o);
-  if (n === "Arguments" || /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(n)) return _arrayLikeToArray(o, minLen);
-}
-function _arrayLikeToArray(arr, len) {
-  if (len == null || len > arr.length) len = arr.length;
-  for (var i = 0, arr2 = new Array(len); i < len; i++) arr2[i] = arr[i];
-  return arr2;
-}
-function _iterableToArrayLimit(r, l) {
-  var t = null == r ? null : "undefined" != typeof Symbol && r[Symbol.iterator] || r["@@iterator"];
-  if (null != t) {
-    var e,
-      n,
-      i,
-      u,
-      a = [],
-      f = !0,
-      o = !1;
-    try {
-      if (i = (t = t.call(r)).next, 0 === l) {
-        if (Object(t) !== t) return;
-        f = !1;
-      } else for (; !(f = (e = i.call(t)).done) && (a.push(e.value), a.length !== l); f = !0);
-    } catch (r) {
-      o = !0, n = r;
-    } finally {
-      try {
-        if (!f && null != t["return"] && (u = t["return"](), Object(u) !== u)) return;
-      } finally {
-        if (o) throw n;
-      }
-    }
-    return a;
-  }
-}
-function _arrayWithHoles(arr) {
-  if (Array.isArray(arr)) return arr;
-}
-function _typeof(o) {
-  "@babel/helpers - typeof";
-
-  return _typeof = "function" == typeof Symbol && "symbol" == typeof Symbol.iterator ? function (o) {
-    return typeof o;
-  } : function (o) {
-    return o && "function" == typeof Symbol && o.constructor === Symbol && o !== Symbol.prototype ? "symbol" : typeof o;
-  }, _typeof(o);
-}
-function _classCallCheck(instance, Constructor) {
-  if (!(instance instanceof Constructor)) {
-    throw new TypeError("Cannot call a class as a function");
-  }
-}
-function _defineProperties(target, props) {
-  for (var i = 0; i < props.length; i++) {
-    var descriptor = props[i];
-    descriptor.enumerable = descriptor.enumerable || false;
-    descriptor.configurable = true;
-    if ("value" in descriptor) descriptor.writable = true;
-    Object.defineProperty(target, _toPropertyKey(descriptor.key), descriptor);
-  }
-}
-function _createClass(Constructor, protoProps, staticProps) {
-  if (protoProps) _defineProperties(Constructor.prototype, protoProps);
-  if (staticProps) _defineProperties(Constructor, staticProps);
-  Object.defineProperty(Constructor, "prototype", {
-    writable: false
-  });
-  return Constructor;
-}
-function _toPropertyKey(t) {
-  var i = _toPrimitive(t, "string");
-  return "symbol" == _typeof(i) ? i : String(i);
-}
-function _toPrimitive(t, r) {
-  if ("object" != _typeof(t) || !t) return t;
-  var e = t[Symbol.toPrimitive];
-  if (void 0 !== e) {
-    var i = e.call(t, r || "default");
-    if ("object" != _typeof(i)) return i;
-    throw new TypeError("@@toPrimitive must return a primitive value.");
-  }
-  return ("string" === r ? String : Number)(t);
-}
+function _wrapRegExp() { _wrapRegExp = function _wrapRegExp(e, r) { return new BabelRegExp(e, void 0, r); }; var e = RegExp.prototype, r = new WeakMap(); function BabelRegExp(e, t, p) { var o = new RegExp(e, t); return r.set(o, p || r.get(e)), _setPrototypeOf(o, BabelRegExp.prototype); } function buildGroups(e, t) { var p = r.get(t); return Object.keys(p).reduce(function (r, t) { var o = p[t]; if ("number" == typeof o) r[t] = e[o];else { for (var i = 0; void 0 === e[o[i]] && i + 1 < o.length;) i++; r[t] = e[o[i]]; } return r; }, Object.create(null)); } return _inherits(BabelRegExp, RegExp), BabelRegExp.prototype.exec = function (r) { var t = e.exec.call(this, r); if (t) { t.groups = buildGroups(t, this); var p = t.indices; p && (p.groups = buildGroups(p, this)); } return t; }, BabelRegExp.prototype[Symbol.replace] = function (t, p) { if ("string" == typeof p) { var o = r.get(this); return e[Symbol.replace].call(this, t, p.replace(/\$<([^>]+)>/g, function (e, r) { var t = o[r]; return "$" + (Array.isArray(t) ? t.join("$") : t); })); } if ("function" == typeof p) { var i = this; return e[Symbol.replace].call(this, t, function () { var e = arguments; return "object" != _typeof(e[e.length - 1]) && (e = [].slice.call(e)).push(buildGroups(e, i)), p.apply(this, e); }); } return e[Symbol.replace].call(this, t, p); }, _wrapRegExp.apply(this, arguments); }
+function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function"); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, writable: true, configurable: true } }); Object.defineProperty(subClass, "prototype", { writable: false }); if (superClass) _setPrototypeOf(subClass, superClass); }
+function _setPrototypeOf(o, p) { _setPrototypeOf = Object.setPrototypeOf ? Object.setPrototypeOf.bind() : function _setPrototypeOf(o, p) { o.__proto__ = p; return o; }; return _setPrototypeOf(o, p); }
+function _slicedToArray(arr, i) { return _arrayWithHoles(arr) || _iterableToArrayLimit(arr, i) || _unsupportedIterableToArray(arr, i) || _nonIterableRest(); }
+function _nonIterableRest() { throw new TypeError("Invalid attempt to destructure non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); }
+function _unsupportedIterableToArray(o, minLen) { if (!o) return; if (typeof o === "string") return _arrayLikeToArray(o, minLen); var n = Object.prototype.toString.call(o).slice(8, -1); if (n === "Object" && o.constructor) n = o.constructor.name; if (n === "Map" || n === "Set") return Array.from(o); if (n === "Arguments" || /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(n)) return _arrayLikeToArray(o, minLen); }
+function _arrayLikeToArray(arr, len) { if (len == null || len > arr.length) len = arr.length; for (var i = 0, arr2 = new Array(len); i < len; i++) arr2[i] = arr[i]; return arr2; }
+function _iterableToArrayLimit(r, l) { var t = null == r ? null : "undefined" != typeof Symbol && r[Symbol.iterator] || r["@@iterator"]; if (null != t) { var e, n, i, u, a = [], f = !0, o = !1; try { if (i = (t = t.call(r)).next, 0 === l) { if (Object(t) !== t) return; f = !1; } else for (; !(f = (e = i.call(t)).done) && (a.push(e.value), a.length !== l); f = !0); } catch (r) { o = !0, n = r; } finally { try { if (!f && null != t["return"] && (u = t["return"](), Object(u) !== u)) return; } finally { if (o) throw n; } } return a; } }
+function _arrayWithHoles(arr) { if (Array.isArray(arr)) return arr; }
+function _typeof(o) { "@babel/helpers - typeof"; return _typeof = "function" == typeof Symbol && "symbol" == typeof Symbol.iterator ? function (o) { return typeof o; } : function (o) { return o && "function" == typeof Symbol && o.constructor === Symbol && o !== Symbol.prototype ? "symbol" : typeof o; }, _typeof(o); }
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+function _defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, _toPropertyKey(descriptor.key), descriptor); } }
+function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); Object.defineProperty(Constructor, "prototype", { writable: false }); return Constructor; }
+function _toPropertyKey(t) { var i = _toPrimitive(t, "string"); return "symbol" == _typeof(i) ? i : String(i); }
+function _toPrimitive(t, r) { if ("object" != _typeof(t) || !t) return t; var e = t[Symbol.toPrimitive]; if (void 0 !== e) { var i = e.call(t, r || "default"); if ("object" != _typeof(i)) return i; throw new TypeError("@@toPrimitive must return a primitive value."); } return ("string" === r ? String : Number)(t); }
 var IS_DIST = true;
 var $ = "/sdcard/msgbot/global_modules/bot-manager/DateTime";
 var $D = !IS_DIST ? global.Date : Date;
@@ -344,7 +201,7 @@ var DateTime = /*#__PURE__*/function () {
     this._locale = locale !== null && locale !== void 0 ? locale : 'ko-KR';
     if (datetimeObject instanceof $D) {
       this._source = datetimeObject;
-    } else if (datetimeObject !== undefined) {
+    } else if (datetimeObject != null) {
       var dt;
       if (datetimeObject instanceof DateTime) dt = datetimeObject;else if (typeof datetimeObject === 'number') dt = DateTime.fromNumber(datetimeObject);else if (_typeof(datetimeObject) === 'object' && !Array.isArray(datetimeObject)) dt = DateTime.fromObject(datetimeObject);else if (typeof datetimeObject === 'string') dt = DateTime.fromString(datetimeObject, this._locale);else throw new TypeError('`datetimeObject` must be $D, datetime, number, object, or string');
       this._source = dt._source;
@@ -891,18 +748,82 @@ var DateTime = /*#__PURE__*/function () {
       return new DateTime(new $D(year, month - 1, day, hour, minute, second, millisecond));
     }
   }, {
+    key: "parseDuration",
+    value: function parseDuration(dateString) {
+      var locale = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 'ko-KR';
+      return DateTime.parseDurationWithFilteredString(dateString, locale).parse;
+    }
+  }, {
     key: "parse",
     value: function parse(dateString) {
       var locale = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 'ko-KR';
       return DateTime.parseWithFilteredString(dateString, locale).parse;
     }
   }, {
+    key: "parseDurationWithFilteredString",
+    value: function parseDurationWithFilteredString(dateString) {
+      var locale = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 'ko-KR';
+      var split = dateString.split('부터');
+      if (split.length === 1) {
+        var parse = DateTime.parseWithFilteredString(dateString, locale);
+        return {
+          parse: {
+            from: parse.parse,
+            to: parse.parse
+          },
+          string: parse.string
+        };
+      }
+      var left = split[0].trim();
+      var right = split.slice(1).join('부터').trim();
+      var _DateTime$_parseWithF = DateTime._parseWithFilteredString(left, locale),
+        leftParse = _DateTime$_parseWithF.parse,
+        leftFString = _DateTime$_parseWithF.string;
+      var _DateTime$_parseWithF2 = DateTime._parseWithFilteredString(right, locale),
+        rightParse = _DateTime$_parseWithF2.parse,
+        rightFString = _DateTime$_parseWithF2.string;
+      var leftDT = leftParse == null ? null : DateTime.fromObject(leftParse);
+      var rightDT = rightParse == null ? null : DateTime.fromObject(rightParse);
+      if (leftDT != null && rightDT != null) {
+        // 내일 3시부터 4시까지 -> 그냥 번역하면 '내일 3시' ~ '오늘 4시' 가 되지만 사실은 '4시'는 '내일 4시'를 뜻함
+        if (!leftDT.lt(rightDT)) {
+          var rightDT_ = DateTime.fromObject(Object.assign(leftParse, rightParse));
+          if (leftDT.lt(rightDT_)) rightDT = rightDT_;
+          // 내일 9시부터 10시 -> '10시'는 오전으로 자동 해석되므로 만약 오후로 바꿨을 때 leftDT < rightDT 를 만족해 합당하다면 시도.
+          else if (rightDT_.hour < 12 && leftDT.lt(rightDT_.add({
+            hour: 12
+          }))) rightDT = rightDT_.add({
+            hour: 12
+          });else rightDT = leftDT;
+        }
+      }
+      return {
+        parse: {
+          from: leftDT,
+          to: rightDT
+        },
+        string: (leftFString + rightFString).replace(/\s+/g, ' ').trim()
+      };
+    }
+  }, {
     key: "parseWithFilteredString",
     value: function parseWithFilteredString(dateString) {
       var locale = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 'ko-KR';
+      var _DateTime$_parseWithF3 = DateTime._parseWithFilteredString(dateString, locale),
+        parse = _DateTime$_parseWithF3.parse,
+        string = _DateTime$_parseWithF3.string;
+      return {
+        parse: parse == null ? null : DateTime.fromObject(parse),
+        string: string
+      };
+    }
+  }, {
+    key: "_parseWithFilteredString",
+    value: function _parseWithFilteredString(dateString) {
+      var locale = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 'ko-KR';
       var cultureInfo = IS_DIST ? JSON.parse(FileStream.read("".concat($, "/globalization/").concat(locale, ".json"))) : require("./globalization/".concat(locale, ".json"));
       if (!cultureInfo) throw new Error('Invalid locale, not found ' + locale);
-      var replaces = Object.entries(cultureInfo['replaces']);
+      var replaces = _objectEntries(cultureInfo['replaces']);
       replaces.sort(function (a, b) {
         return b[0].length - a[0].length;
       }); // '내일모레'와 '모레'가 모두 매칭되는 경우, '내일모레'가 먼저 매칭되도록 함.
@@ -954,7 +875,8 @@ var DateTime = /*#__PURE__*/function () {
       var common_parse = function common_parse() {
         var _year, _month, _day2, _hour, _minute, _second, _millisecond;
         var year, month, day, hour, minute, second, millisecond;
-        var idx = -1;
+        var idx = -1; // ymd, md 등 정규식에 가장 뒤에서 걸린 것(인덱스의 최댓값)을 찾기 위한 변수
+
         var mix = {
           ymd: /*#__PURE__*/_wrapRegExp(/(\d{4})[-.\/] *(\d{1,2})[-.\/] *(\d{1,2})\.?/, {
             year: 1,
@@ -1046,12 +968,13 @@ var DateTime = /*#__PURE__*/function () {
         if (millisecond != null) millisecond = parseInt(millisecond);
 
         // 보통 '3시'는 '오후 3시'로 해석되어야 함.
-        // 자동으로 오후로 해석되는 시간의 범위: 1시 ~ 9시
-        var meridian = 1 <= hour && hour <= 9 ? 'pm' : 'am';
+        // 자동으로 오후로 해석되는 시간의 범위: 1시 ~ 7시 59분
+        var meridian = 1 <= hour && hour < 8 ? 'pm' : 'am';
+        var i;
         if (dateString.indexOf('오전') !== -1) {
           filtering('오전');
           meridian = 'am';
-        } else if (dateString.indexOf('아침') < idx) {
+        } else if (0 <= (i = dateString.indexOf('아침')) && i < idx) {
           // 야침 9시 -> 오전 9시
           filtering('아침');
           meridian = 'am';
@@ -1061,14 +984,14 @@ var DateTime = /*#__PURE__*/function () {
         } else if (dateString.indexOf('오후') !== -1) {
           filtering('오후');
           meridian = 'pm';
-        } else if (dateString.indexOf('저녁') < idx) {
+        } else if (0 <= (i = dateString.indexOf('저녁')) && i < idx) {
           filtering('저녁');
           meridian = 'pm';
         } else if (dateString.indexOf('pm') !== -1) {
           filtering('pm');
           meridian = 'pm';
         }
-        if (hour !== undefined && hour < 12 && meridian === 'pm') hour += 12;
+        if (hour != null && hour < 12 && meridian === 'pm') hour += 12;
         var now = DateTime.now();
         if (dateString.indexOf('아침') !== -1 && idx === -1) {
           // '아침 9시' 라고 했으면 위에서 '오전'으로 이미 필터링 됨. 즉, 이건 '아침'만 있는 경우임.
@@ -1105,13 +1028,13 @@ var DateTime = /*#__PURE__*/function () {
           hour = 0;
         }
         var ret = {};
-        if (year !== undefined) ret.year = year;
-        if (month !== undefined) ret.month = month;
-        if (day !== undefined) ret.day = day;
-        if (hour !== undefined) ret.hour = hour;
-        if (minute !== undefined) ret.minute = minute;
-        if (second !== undefined) ret.second = second;
-        if (millisecond !== undefined) ret.millisecond = millisecond;
+        if (year != null) ret.year = year;
+        if (month != null) ret.month = month;
+        if (day != null) ret.day = day;
+        if (hour != null) ret.hour = hour;
+        if (minute != null) ret.minute = minute;
+        if (second != null) ret.second = second;
+        if (millisecond != null) ret.millisecond = millisecond;
         return ret;
       };
       var relative_parse = function relative_parse() {
@@ -1150,9 +1073,9 @@ var DateTime = /*#__PURE__*/function () {
 
         // 'n<단위> 후'는 단위가 변경되고 나머지는 현재 시간을 따름. 3시간 후 -> 3시간 후 현재시간
         arr2 = RE_RELATIVE_END.exec(dateString);
-        if (arr2 !== null) {
+        if (arr2 != null) {
           filtering(arr2[0]);
-          while ((arr = RE_RELATIVE.exec(dateString)) !== null) {
+          while ((arr = RE_RELATIVE.exec(dateString)) != null) {
             var _ret$key;
             filtering(arr[0]);
             var key = unitMap[arr.groups.unit];
@@ -1168,7 +1091,7 @@ var DateTime = /*#__PURE__*/function () {
         }
 
         // '다음 <단위>'는 단위만 변경되면 나머지는 초기화임. 다음 시간 -> 다음 시간 0분 0초
-        while ((arr = RE_RELATIVE2.exec(dateString)) !== null) {
+        while ((arr = RE_RELATIVE2.exec(dateString)) != null) {
           var _ret$unitMap$arr$grou;
           filtering(arr[0]);
 
@@ -1183,7 +1106,7 @@ var DateTime = /*#__PURE__*/function () {
 
         // 일월화수목금토가 일주일이라고 하면 현재가 수요일일 때, 다음주 일요일은 5일 후. 그러나 평상시는 이 날을 그냥 이번주 일요일이라고 함.
         // 즉 현실에 맞게 일주일을 조금 다르게 대응시킴.
-        if ((arr = RE_WEEKDAY.exec(dateString)) !== null) {
+        if ((arr = RE_WEEKDAY.exec(dateString)) != null) {
           if (arr.index === 0 || /[^0-9요]+/.test(dateString.slice(0, arr.index))) {
             var _ret$day3, _ret$day4;
             // /(?<=[^0-9요]+|^)(?<week>[일월화수목금토])요일(?= +|$)/ 에서 후방탐색연산자 사용이 안되어서 이렇게 대신함
@@ -1200,10 +1123,10 @@ var DateTime = /*#__PURE__*/function () {
         }
         return ret;
       };
-      filteredString = filteredString.replace(/ +/g, ' ');
+      filteredString = filteredString.replace(/\s+/g, ' ');
       var iso_parsed = iso_parse();
-      if (iso_parsed !== undefined) return {
-        parse: DateTime.fromObject(iso_parsed),
+      if (iso_parsed != null) return {
+        parse: iso_parsed,
         string: filteredString.trim()
       };
       var common_parsed = common_parse();
@@ -1219,7 +1142,7 @@ var DateTime = /*#__PURE__*/function () {
       // '3월 4일' 이라고 하면 '현재년도 3월 4일 0시 0분 0초'로 해석되어야 함. 즉, 마지막으로 데이터가 존재하는 unit 까지만 현재 날짜로 지정.
       var lastIndex = -1;
       for (var i = units.length - 1; i >= 0; i--) {
-        if (relative_parsed[units[i]] !== undefined) {
+        if (relative_parsed[units[i]] != null) {
           lastIndex = i;
           break;
         }
@@ -1242,7 +1165,7 @@ var DateTime = /*#__PURE__*/function () {
         else if (common_parsed[unit] || relative_parsed[unit]) parsed[unit] = (_common_parsed$unit = common_parsed[unit]) !== null && _common_parsed$unit !== void 0 ? _common_parsed$unit : relative_parsed[unit];
       }
       return {
-        parse: DateTime.fromObject(parsed),
+        parse: parsed,
         string: filteredString.trim()
       };
     }
@@ -1277,7 +1200,7 @@ var DateTime = /*#__PURE__*/function () {
     // 		standard: new Set([ 'from', 'of' ]),
     // 	};
     //
-    // 	const homonyms = new Set(Object.keys(cultureInfo.translate).map(k => isHomonymObject(cultureInfo.translate[k]) ? k : null).filter(e => e !== null));
+    // 	const homonyms = new Set(Object.keys(cultureInfo.translate).map(k => isHomonymObject(cultureInfo.translate[k]) ? k : null).filter(e => e != null));
     //
     // 	// 1. parse ISO 8601 format
     // 	const parse1 = () => {
@@ -1321,7 +1244,7 @@ var DateTime = /*#__PURE__*/function () {
     // 			let second = timeMatch?.groups?.second;
     // 			let millisecond = timeMatch?.groups?.millisecond;
     //
-    // 			if (hour !== undefined && hour < 12 && meridiem === 'pm')
+    // 			if (hour != null && hour < 12 && meridiem === 'pm')
     // 				hour += 12;
     //
     // 			return { year, month, day, hour, minute, second, millisecond };
@@ -1452,7 +1375,7 @@ var DateTime = /*#__PURE__*/function () {
     // 					else if (isRelativeObject(tokens[j]))
     // 						diff = tokens[j].diff * multiplier;
     //
-    // 					if (diff !== undefined)
+    // 					if (diff != null)
     // 						tokens[j] = { diff };
     // 				}
     //
@@ -1714,12 +1637,12 @@ var DateTime = /*#__PURE__*/function () {
     //
     // 	let parsed = parse1() ?? parse2();
     //
-    // 	if (parsed !== undefined)
+    // 	if (parsed != null)
     // 		return [ parsed, undefined ];
     // 	else {
     // 		let parsed = parse3();
     //
-    // 		if (parsed !== undefined)
+    // 		if (parsed != null)
     // 			return parsed;
     // 		else
     // 			throw new Error('Invalid date string: ' + dateString);

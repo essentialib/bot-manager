@@ -53,6 +53,8 @@ class Bot {
             case Event.MESSAGE:
                 // TEST: 여러 lazy 명령어가 동시에 들어올 때, 어떻게 처리되는지 테스트
                 this.dbManager.on(event, (chat, channel) => {
+                    listener(chat, channel);
+                    
                     for (let i = 0; i < this._lazyArgsQueue.length; i++) {
                         const [prevChat, prevChannel, cmd, args] = this._lazyArgsQueue[i];
 
@@ -64,18 +66,19 @@ class Bot {
                         }
                     }
 
-                    const { cmd, args } = this.commandRegistry.get(chat, channel);
+                    const { cmd, args, filteredText } = this.commandRegistry.get(chat, channel);
 
-                    if (cmd) {
+                    if (cmd != null) {
+                        if (filteredText != null)
+                            chat.filteredText = filteredText;
+                        
                         this.commandEvent(chat, channel, cmd, args);
                         cmd.execute(chat, channel, args);
 
-                        if (cmd.lazy === true) {
+                        if (cmd.lazy) {
                             this._lazyArgsQueue.push([chat, channel, cmd, args]);
                         }
                     }
-
-                    listener(chat, channel);
                 });
                 break;
             default:

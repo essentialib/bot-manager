@@ -12,7 +12,7 @@ export declare class Bot {
     public cronManager: CronJobFactor;
     public botManager: any;
     public commandRegistry: Registry;
-    public commandEvent: Execute;
+    public commandEvent: Execute<any>;
     private _lazyArgsQueue: [Chat, Channel, Command, Args][];
 
     static getCurrentBot(botManager: any, dbManager: DBManager, init?: InstanceType): Bot;

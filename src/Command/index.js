@@ -1,4 +1,5 @@
 const { DateTime } = require('../DateTime');
+
 const $ = `/sdcard/msgbot/global_modules/bot-manager/Command`;
 const IS_DIST = false;
 const COMPRESS = '\u200b'.repeat(500);
@@ -26,7 +27,7 @@ class Command {
 		this._executeCron = _executeCron ?? ((self, tag) => {
 		});
 		
-		this.lazy = _executeLazy !== undefined;
+		this.lazy = _executeLazy != null;
 	}
 	
 	execute(chat, channel, args) {
@@ -207,8 +208,9 @@ class StrArg extends Arg {
 }
 
 class DateArg extends Arg {
-	constructor(name) {
+	constructor(name, duration) {
 		super(name);
+		this.duration = duration;
 	}
 	
 	toRegExp() {
@@ -219,9 +221,19 @@ class DateArg extends Arg {
 		if (value != null && !this.toRegExp().test(value))
 			return false;
 		
-		let parsed = DateTime.parse(value);
-		if (parsed == null)
-			return false;
+		let parsed;
+		if (!this.duration) {
+			parsed = DateTime.parse(value);
+			
+			if (parsed == null)
+				return false;
+		}
+		else {
+			parsed = DateTime.parseDuration(value);
+			
+			if (!(parsed.from && parsed.to))
+				return false;
+		}
 		
 		return parsed;
 	}
@@ -353,7 +365,7 @@ class StructuredCommand extends Command {
 		}
 		
 		setChannels(...channels) {
-			this.channels = channels;
+			this.channels = channels.filter(Boolean);
 			return this;
 		}
 		
@@ -423,6 +435,7 @@ class NaturalCommand extends Command {
 		
 		this.query = options.query;
 		this.useDateParse = options.useDateParse;
+		this.useDuration = options.useDuration;
 		options.dictionaryPath = options.dictionaryPath || 'dict.json';
 		
 		let dictionary = IS_DIST ?
@@ -447,6 +460,7 @@ class NaturalCommand extends Command {
 			this.executeLazy = null;
 			this.executeCron = null;
 			this.useDateParse = false;
+			this.useDuration = false;
 			this.cronJobs = {};
 			this.channels = [];
 			this.examples = [];
@@ -472,8 +486,9 @@ class NaturalCommand extends Command {
 			return this;
 		}
 		
-		setUseDateParse(useDateParse) {
-			this.useDateParse = useDateParse;
+		setUseDateParse(useDateParse, useDuration) {
+			this.useDateParse = useDuration;
+			this.useDuration = useDuration;
 			return this;
 		}
 		
@@ -493,7 +508,7 @@ class NaturalCommand extends Command {
 		}
 		
 		setChannels(...channels) {
-			this.channels = channels;
+			this.channels = channels.filter(Boolean);
 			return this;
 		}
 		
@@ -523,7 +538,8 @@ class NaturalCommand extends Command {
 				cronJobs: this.cronJobs,
 				channels: this.channels,
 				examples: this.examples,
-				useDateParse: this.useDateParse
+				useDateParse: this.useDateParse,
+				useDuration: this.useDuration
 			});
 		}
 	}
@@ -611,6 +627,7 @@ class Registry {
 			if (cmd.channels.length !== 0 && !cmd.channels.map(c => c.id).includes(channel.id))    // 방이 포함되어 있지 않을 경우
 				continue;
 			
+			let ret = {};
 			let args;
 			
 			if (cmd instanceof StructuredCommand) {
@@ -636,22 +653,32 @@ class Registry {
 					continue;
 			}
 			else if (cmd instanceof NaturalCommand) {
-				let rawText = chat.text;
-				let text = chat.text.replace(/ +/g, ' ').replace(/[!"#$%&'()*+,\-./:;<=>?@[\\\]^_`{|}~]/g, ""); // 구두점 제거
+				let filteredText = chat.text.replace(/ +/g, ' ').replace(/[!"#$%&'()*+,\-./:;<=>?@[\\\]^_`{|}~]/g, ""); // 구두점 제거
 				
 				args = Object.assign({}, cmd.query);    // 기본값을 가진 객체를 깊은 복사
 				
 				if (cmd.useDateParse) {
-					let { parse, string } = DateTime.parseWithFilteredString(text);
-					args.datetime = parse;
+					if (cmd.useDuration) {
+						let { parse: { from, to }, string } = DateTime.parseDurationWithFilteredString(filteredText);
+						args.datetime = { from, to };
+						
+						if (from != null && to != null)
+							filteredText = string;
+					}
+					else {
+						let { parse, string } = DateTime.parseWithFilteredString(filteredText);
+						args.datetime = parse;
+						
+						if (parse != null)
+							filteredText = string;
+					}
 					
-					if (parse != null)
-						text = string;
+					ret.filteredText = filteredText;
 				}
 				
 				// 기본값만 있던 cmd.query 에서 쿼리할 대상으로 보낸 토큰들에 대응되는 단어들을 매칭
 				// 매칭이 실패하면 기본값이 있는 경우 그대로 남고, 아니면 null로 남게 된다
-				for (let word of text.split(' ')) {
+				for (let word of filteredText.split(' ')) {
 					if (word in cmd.map) {
 						let token = cmd.map[word];
 						
@@ -675,12 +702,11 @@ class Registry {
 				
 				if (!is_full)
 					continue;
-				
-				chat.text = text;
-				chat.rawText = rawText;
 			}
 			
-			return { cmd, args };
+			ret.cmd = cmd;
+			ret.args = args;
+			return ret;
 		}
 		
 		return { cmd: null, args: null };

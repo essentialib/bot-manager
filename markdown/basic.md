@@ -4,6 +4,12 @@ const bot = BotManager.getCurrentBot();
 ```
 모든 코드는 위와 같이 시작한다. 재선언된 BotManager는 기존의 API2에서 지원하는 BotManager를 대체한다.
 
+또한, 봇이 작동하게 하기 위한 시작 코드도 필요하다.
+```js
+bot.start();
+```
+위치는 고려하지 않고 아무 데나 써도 된다.
+
 ---
 ## Event
 

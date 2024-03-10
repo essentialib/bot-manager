@@ -2,6 +2,12 @@
 
 function _typeof(o) { "@babel/helpers - typeof"; return _typeof = "function" == typeof Symbol && "symbol" == typeof Symbol.iterator ? function (o) { return typeof o; } : function (o) { return o && "function" == typeof Symbol && o.constructor === Symbol && o !== Symbol.prototype ? "symbol" : typeof o; }, _typeof(o); }
 var _StructuredCommand, _NaturalCommand, _Registry;
+function _objectEntries(obj) {
+  var entries = [];
+  var keys = Object.keys(obj);
+  for (var k = 0; k < keys.length; k++) entries.push([keys[k], obj[keys[k]]]);
+  return entries;
+}
 function _createForOfIteratorHelper(o, allowArrayLike) { var it = typeof Symbol !== "undefined" && o[Symbol.iterator] || o["@@iterator"]; if (!it) { if (Array.isArray(o) || (it = _unsupportedIterableToArray(o)) || allowArrayLike && o && typeof o.length === "number") { if (it) o = it; var i = 0; var F = function F() {}; return { s: F, n: function n() { if (i >= o.length) return { done: true }; return { done: false, value: o[i++] }; }, e: function e(_e) { throw _e; }, f: F }; } throw new TypeError("Invalid attempt to iterate non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); } var normalCompletion = true, didErr = false, err; return { s: function s() { it = it.call(o); }, n: function n() { var step = it.next(); normalCompletion = step.done; return step; }, e: function e(_e2) { didErr = true; err = _e2; }, f: function f() { try { if (!normalCompletion && it["return"] != null) it["return"](); } finally { if (didErr) throw err; } } }; }
 function _toArray(arr) { return _arrayWithHoles(arr) || _iterableToArray(arr) || _unsupportedIterableToArray(arr) || _nonIterableRest(); }
 function _get() { if (typeof Reflect !== "undefined" && Reflect.get) { _get = Reflect.get.bind(); } else { _get = function _get(target, property, receiver) { var base = _superPropBase(target, property); if (!base) return; var desc = Object.getOwnPropertyDescriptor(base, property); if (desc.get) { return desc.get.call(arguments.length < 3 ? target : receiver); } return desc.value; }; } return _get.apply(this, arguments); }
@@ -31,6 +37,8 @@ function _toPropertyKey(t) { var i = _toPrimitive(t, "string"); return "symbol" 
 function _toPrimitive(t, r) { if ("object" != _typeof(t) || !t) return t; var e = t[Symbol.toPrimitive]; if (void 0 !== e) { var i = e.call(t, r || "default"); if ("object" != _typeof(i)) return i; throw new TypeError("@@toPrimitive must return a primitive value."); } return ("string" === r ? String : Number)(t); }
 var _require = require('../DateTime'),
   DateTime = _require.DateTime;
+var _require2 = require("../DBManager/classes"),
+  Channel = _require2.Channel;
 var $ = "/sdcard/msgbot/global_modules/bot-manager/Command";
 var IS_DIST = true;
 var COMPRESS = "\u200B".repeat(500);
@@ -77,7 +85,7 @@ var Command = /*#__PURE__*/function () {
       if (Object.keys(this.cronJobs).length > 0) {
         ret.push('📌 자동 실행 주기');
         ret.push('——');
-        ret.push.apply(ret, _toConsumableArray(Object.entries(this.cronJobs).map(function (_ref) {
+        ret.push.apply(ret, _toConsumableArray(_objectEntries(this.cronJobs).map(function (_ref) {
           var _ref2 = _slicedToArray(_ref, 2),
             k = _ref2[0],
             v = _ref2[1];
@@ -205,9 +213,12 @@ var StrArg = /*#__PURE__*/function (_Arg2) {
 }(Arg);
 var DateArg = /*#__PURE__*/function (_Arg3) {
   _inherits(DateArg, _Arg3);
-  function DateArg(name) {
+  function DateArg(name, duration) {
+    var _this4;
     _classCallCheck(this, DateArg);
-    return _callSuper(this, DateArg, [name]);
+    _this4 = _callSuper(this, DateArg, [name]);
+    _this4.duration = duration;
+    return _this4;
   }
   _createClass(DateArg, [{
     key: "toRegExp",
@@ -218,8 +229,14 @@ var DateArg = /*#__PURE__*/function (_Arg3) {
     key: "parse",
     value: function parse(value) {
       if (value != null && !this.toRegExp().test(value)) return false;
-      var parsed = DateTime.parse(value);
-      if (parsed == null) return false;
+      var parsed;
+      if (!this.duration) {
+        parsed = DateTime.parse(value);
+        if (parsed == null) return false;
+      } else {
+        parsed = DateTime.parseDuration(value);
+        if (!(parsed.from && parsed.to)) return false;
+      }
       return parsed;
     }
   }]);
@@ -233,14 +250,14 @@ var map = {
 var StructuredCommand = /*#__PURE__*/function (_Command) {
   _inherits(StructuredCommand, _Command);
   function StructuredCommand(options) {
-    var _this4;
+    var _this5;
     _classCallCheck(this, StructuredCommand);
     if (options.usage == null) throw new TypeError("usage is required");
-    _this4 = _callSuper(this, StructuredCommand, [options.name, options.description, options.execute, options.executeLazy, options.executeCron, options.cronJobs, options.channels, options.examples]);
-    _this4.usage = options.usage;
-    _this4._argumentStr = [];
+    _this5 = _callSuper(this, StructuredCommand, [options.name, options.description, options.execute, options.executeLazy, options.executeCron, options.cronJobs, options.channels, options.examples]);
+    _this5.usage = options.usage;
+    _this5._argumentStr = [];
     var args = [];
-    var regexApplied = _this4.usage.replace(/\s*<.+?>/g, function (m) {
+    var regexApplied = _this5.usage.replace(/\s*<.+?>/g, function (m) {
       var pos = m.indexOf('<');
       var whitespaces = m.slice(0, pos);
       var _m$slice$split = m.slice(pos + 1, -1).split(/\s+/),
@@ -251,7 +268,7 @@ var StructuredCommand = /*#__PURE__*/function (_Command) {
         _nameAndType$split2 = _slicedToArray(_nameAndType$split, 2),
         name = _nameAndType$split2[0],
         type = _nameAndType$split2[1];
-      _this4._argumentStr.push([name, type]);
+      _this5._argumentStr.push([name, type]);
       options = options.map(function (o) {
         var splited = o.split("=");
         if (!isNaN(Number(splited[1]))) {
@@ -298,18 +315,18 @@ var StructuredCommand = /*#__PURE__*/function (_Command) {
       var ret = "".concat(whitespaces, "(").concat(args[args.length - 1].toRegExp().source, ")");
       if (args[args.length - 1].includeEmpty) return "(?:".concat(ret, ")?");else return ret;
     });
-    _this4.args = args;
-    _this4.regex = new RegExp("^".concat(regexApplied, "$"));
-    return _this4;
+    _this5.args = args;
+    _this5.regex = new RegExp("^".concat(regexApplied, "$"));
+    return _this5;
   }
   _createClass(StructuredCommand, [{
     key: "manual",
     value: function manual() {
-      var _this5 = this;
+      var _this6 = this;
       return _get(_getPrototypeOf(StructuredCommand.prototype), "manual", this).call(this, ["\"".concat(this.usage.replace(/<.+?>/g, function (m) {
         return m.slice(0, m.indexOf(':')) + '>';
       }), "\"")].concat(_toConsumableArray(this.args.map(function (arg, i) {
-        var ret = "\xB7 ".concat(_this5._argumentStr[i][0], ": ").concat(_this5._argumentStr[i][1]);
+        var ret = "\xB7 ".concat(_this6._argumentStr[i][0], ": ").concat(_this6._argumentStr[i][1]);
         var options = [];
         Object.keys(arg).forEach(function (key) {
           if (key === 'name' || key === 'many' || key === 'includeEmpty') return;
@@ -381,7 +398,9 @@ _defineProperty(StructuredCommand, "Builder", /*#__PURE__*/function () {
       for (var _len = arguments.length, channels = new Array(_len), _key2 = 0; _key2 < _len; _key2++) {
         channels[_key2] = arguments[_key2];
       }
-      this.channels = channels;
+      this.channels = channels.filter(function (x) {
+        return x instanceof Channel;
+      });
       return this;
     }
   }, {
@@ -418,22 +437,23 @@ _defineProperty(StructuredCommand, "Builder", /*#__PURE__*/function () {
 var NaturalCommand = /*#__PURE__*/function (_Command2) {
   _inherits(NaturalCommand, _Command2);
   function NaturalCommand(options) {
-    var _this6;
+    var _this7;
     _classCallCheck(this, NaturalCommand);
     if (options.query == null) throw new TypeError("query is required");
-    _this6 = _callSuper(this, NaturalCommand, [options.name, options.description, options.execute, options.executeLazy, options.executeCron, options.cronJobs, options.channels, options.examples]);
-    _this6.query = options.query;
-    _this6.useDateParse = options.useDateParse;
+    _this7 = _callSuper(this, NaturalCommand, [options.name, options.description, options.execute, options.executeLazy, options.executeCron, options.cronJobs, options.channels, options.examples]);
+    _this7.query = options.query;
+    _this7.useDateParse = options.useDateParse;
+    _this7.useDuration = options.useDuration;
     options.dictionaryPath = options.dictionaryPath || 'dict.json';
     var dictionary = IS_DIST ? JSON.parse(FileStream.read("".concat($, "/").concat(options.dictionaryPath))) : require("./".concat(options.dictionaryPath));
-    _this6.map = {};
+    _this7.map = {};
     for (var tok in dictionary) {
       var _iterator2 = _createForOfIteratorHelper(dictionary[tok]),
         _step2;
       try {
         for (_iterator2.s(); !(_step2 = _iterator2.n()).done;) {
           var alias = _step2.value;
-          _this6.map[alias] = tok;
+          _this7.map[alias] = tok;
         }
       } catch (err) {
         _iterator2.e(err);
@@ -441,7 +461,7 @@ var NaturalCommand = /*#__PURE__*/function (_Command2) {
         _iterator2.f();
       }
     }
-    return _this6;
+    return _this7;
   }
   _createClass(NaturalCommand, [{
     key: "manual",
@@ -474,6 +494,7 @@ _defineProperty(NaturalCommand, "Builder", /*#__PURE__*/function () {
     this.executeLazy = null;
     this.executeCron = null;
     this.useDateParse = false;
+    this.useDuration = false;
     this.cronJobs = {};
     this.channels = [];
     this.examples = [];
@@ -504,8 +525,9 @@ _defineProperty(NaturalCommand, "Builder", /*#__PURE__*/function () {
     }
   }, {
     key: "setUseDateParse",
-    value: function setUseDateParse(useDateParse) {
-      this.useDateParse = useDateParse;
+    value: function setUseDateParse(useDateParse, useDuration) {
+      this.useDateParse = useDuration;
+      this.useDuration = useDuration;
       return this;
     }
   }, {
@@ -528,7 +550,9 @@ _defineProperty(NaturalCommand, "Builder", /*#__PURE__*/function () {
       for (var _len3 = arguments.length, channels = new Array(_len3), _key4 = 0; _key4 < _len3; _key4++) {
         channels[_key4] = arguments[_key4];
       }
-      this.channels = channels;
+      this.channels = channels.filter(function (x) {
+        return x instanceof Channel;
+      });
       return this;
     }
   }, {
@@ -558,7 +582,8 @@ _defineProperty(NaturalCommand, "Builder", /*#__PURE__*/function () {
         cronJobs: this.cronJobs,
         channels: this.channels,
         examples: this.examples,
-        useDateParse: this.useDateParse
+        useDateParse: this.useDateParse,
+        useDuration: this.useDuration
       });
     }
   }]);
@@ -587,7 +612,7 @@ var Registry = /*#__PURE__*/function () {
   }, {
     key: "register",
     value: function register(command) {
-      var _this7 = this;
+      var _this8 = this;
       if (!(command instanceof Command)) throw new TypeError("command must be instance of Command");
       var _iterator3 = _createForOfIteratorHelper(this.data),
         _step3;
@@ -612,7 +637,7 @@ var Registry = /*#__PURE__*/function () {
       });
       if (this.cronManager != null) {
         var _loop = function _loop(tag) {
-          _this7.cronManager.add(command.cronJobs[tag], function () {
+          _this8.cronManager.add(command.cronJobs[tag], function () {
             return command.executeCron(tag);
           });
         };
@@ -651,22 +676,34 @@ var Registry = /*#__PURE__*/function () {
               if (!is_satisfy) // 세부 속성을 만족하지 못했을 경우
                 return 0; // continue
             } else if (cmd instanceof NaturalCommand) {
-              var rawText = chat.text;
-              var text = chat.text.replace(/ +/g, ' ').replace(/[!"#$%&'()*+,\-./:;<=>?@[\\\]^_`{|}~]/g, ""); // 구두점 제거
+              var filteredText = chat.text.replace(/ +/g, ' ').replace(/[!"#$%&'()*+,\-./:;<=>?@[\\\]^_`{|}~]/g, ""); // 구두점 제거
 
               args = Object.assign({}, cmd.query); // 기본값을 가진 객체를 깊은 복사
 
               if (cmd.useDateParse) {
-                var _DateTime$parseWithFi = DateTime.parseWithFilteredString(text),
-                  parse = _DateTime$parseWithFi.parse,
-                  string = _DateTime$parseWithFi.string;
-                args.datetime = parse;
-                if (parse != null) text = string;
+                if (cmd.useDuration) {
+                  var _DateTime$parseDurati = DateTime.parseDurationWithFilteredString(filteredText),
+                    _DateTime$parseDurati2 = _DateTime$parseDurati.parse,
+                    from = _DateTime$parseDurati2.from,
+                    to = _DateTime$parseDurati2.to,
+                    string = _DateTime$parseDurati.string;
+                  args.datetime = {
+                    from: from,
+                    to: to
+                  };
+                  if (from != null && to != null) filteredText = string;
+                } else {
+                  var _DateTime$parseWithFi = DateTime.parseWithFilteredString(filteredText),
+                    parse = _DateTime$parseWithFi.parse,
+                    _string = _DateTime$parseWithFi.string;
+                  args.datetime = parse;
+                  if (parse != null) filteredText = _string;
+                }
               }
 
               // 기본값만 있던 cmd.query 에서 쿼리할 대상으로 보낸 토큰들에 대응되는 단어들을 매칭
               // 매칭이 실패하면 기본값이 있는 경우 그대로 남고, 아니면 null로 남게 된다
-              var _iterator5 = _createForOfIteratorHelper(text.split(' ')),
+              var _iterator5 = _createForOfIteratorHelper(filteredText.split(' ')),
                 _step5;
               try {
                 for (_iterator5.s(); !(_step5 = _iterator5.n()).done;) {
@@ -693,8 +730,7 @@ var Registry = /*#__PURE__*/function () {
                 }
               }
               if (!is_full) return 0; // continue
-              chat.text = text;
-              chat.rawText = rawText;
+              chat.filteredText = filteredText;
             }
             return {
               v: {
