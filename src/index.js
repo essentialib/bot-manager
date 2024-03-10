@@ -9,7 +9,7 @@ class Bot {
     constructor() {
         this.bot = null;
 
-        this.dbManager = null;
+        this.dblistener = null;
         this.cronManager = CronJob;
         this.botManager = null;
         this.commandRegistry = CommandRegistry;
@@ -17,23 +17,49 @@ class Bot {
 
         this.commandEvent = (chat, channel, command, args) => {};
 
+        this._findCommand = (chat, channel) => {
+            for (let i = 0; i < this._lazyArgsQueue.length; i++) {
+                const [prevChat, prevChannel, cmd, args] = this._lazyArgsQueue[i];
+        
+                if (prevChat.user.id === chat.user.id && prevChannel.id === channel.id) {
+                    cmd.executeLazy(chat, prevChat, channel, prevChannel, args);
+                    this._lazyArgsQueue.splice(i, 1);
+        
+                    return;
+                }
+            }
+        
+            const { cmd, args } = this.commandRegistry.get(chat, channel);
+        
+            if (cmd != null) {
+                this.commandEvent(chat, channel, cmd, args);
+                cmd.execute(chat, channel, args);
+        
+                if (cmd.lazy) {
+                    this._lazyArgsQueue.push([chat, channel, cmd, args]);
+                }
+            }
+        }
+
         this._lazyArgsQueue = [];
     }
 
     static getCurrentBot(botManager, dbManager, init) {
         let ret = new Bot();
-        ret.dbManager = dbManager.getInstance(init);
+        ret.dblistener = dbManager.getInstance(init);
         ret.botManager = botManager;
         ret.bot = ret.botManager.getCurrentBot();
 
+        ret.dblistener.on(Event.MESSAGE, ret._findCommand);
+
         ret.bot.addListener('notificationPosted', (sbn, rm) => {
-            ret.dbManager.addChannel(sbn);
+            ret.dblistener.addChannel(sbn);
         });
 
         // NOTE: 이렇게 하면 봇 소스가 여러 개일 때, 컴파일 때마다 초기화되어서
         //  한 쪽 봇 코드의 말만 듣는 현상이 생김. 그렇다고 off를 뺄 수는 없어 그냥 둠.
         ret.bot.addListener('startCompile', () => {
-            ret.dbManager.stop();
+            ret.dblistener.stop();
             ret.cronManager.off();
             ret.cronManager.setWakeLock(false);
         });
@@ -51,56 +77,83 @@ class Bot {
                 this.commandEvent = listener;
                 break;
             case Event.MESSAGE:
-                // TEST: 여러 lazy 명령어가 동시에 들어올 때, 어떻게 처리되는지 테스트
-                this.dbManager.on(event, (chat, channel) => {
-                    listener(chat, channel);
-                    
-                    for (let i = 0; i < this._lazyArgsQueue.length; i++) {
-                        const [prevChat, prevChannel, cmd, args] = this._lazyArgsQueue[i];
-
-                        if (prevChat.user.id === chat.user.id && prevChannel.id === channel.id) {
-                            cmd.executeLazy(chat, prevChat, channel, prevChannel, args);
-                            this._lazyArgsQueue.splice(i, 1);
-
-                            return;
-                        }
-                    }
-
-                    const { cmd, args, filteredText } = this.commandRegistry.get(chat, channel);
-
-                    if (cmd != null) {
-                        if (filteredText != null)
-                            chat.filteredText = filteredText;
-                        
-                        this.commandEvent(chat, channel, cmd, args);
-                        cmd.execute(chat, channel, args);
-
-                        if (cmd.lazy) {
-                            this._lazyArgsQueue.push([chat, channel, cmd, args]);
-                        }
-                    }
-                });
+                // 이벤트 리스너는 여러 개가 등록 가능하므로, 컴파일하면 명령어 찾아내는 리스너 하나는 자동 등록되고, 나머지 커스텀 리스너는 이렇게 따로 추가되는거로.
+                this.dblistener.on(event, listener);
                 break;
             default:
-                this.dbManager.on(event, listener);
+                this.dblistener.on(event, listener);
         }
+
+        return this;
+    }
+
+    addListener(event, listener) {
+        return this.on(event, listener);
+    }
+
+    off(event, listener) {
+        if (!Object.values(Event).includes(event)) {
+            throw new Error('Invalid event');
+        }
+
+        // TODO: Event.COMMAND는 여러 리스너 공통임. 따로 안 됨 매뉴얼에 적기
+
+        switch (event) {
+            case Event.COMMAND:
+                this.commandEvent = (chat, channel, command, args) => {};
+                break;
+            default:
+                this.dblistener.off(event, listener);
+        }
+
+        return this;
+    }
+
+    removeListener(event, listener) {
+        return this.off(event, listener);
+    }
+
+    eventNames() {
+        return this.botManager.eventNames();
+    }
+
+    rawListeners(event) {
+        return this.botManager.rawListeners(event);
+    }
+
+    listeners(event) {
+        return this.botManager.listeners(event);
+    }
+
+    listenerCount(event) {
+        return this.botManager.listenerCount(event);
+    }
+
+    getMaxListeners() {
+        return this.botManager.getMaxListeners();
+    }
+
+    setMaxListeners(maxListeners) {
+        return this.botManager.setMaxListeners(maxListeners);
     }
 
     start() {
-        this.dbManager.start();
+        this.dblistener.start();
         this.cronManager.setWakeLock(true);
     }
 
     stop() {
-        this.dbManager.stop();
+        this.dblistener.stop();
+        this.cronManager.off();
+        this.cronManager.setWakeLock(false);
     }
 
     close() {
-        this.dbManager.close();
+        this.dblistener.close();
     }
 
     addChannel(sbn) {
-        this.dbManager.addChannel(sbn);
+        this.dblistener.addChannel(sbn);
     }
 
     addCommand(cmd) {
@@ -108,11 +161,11 @@ class Bot {
     }
 
     setWakeLock(setWakeLock) {
-        this.dbManager.setWakeLock(setWakeLock);
+        this.cronManager.setWakeLock(setWakeLock);
     }
 }
 
-class BotManager {
+class BotOperator {
     constructor(botManager) {
         this.botManager = botManager;
         this.dbManager = DBManager;
@@ -127,4 +180,4 @@ class BotManager {
     }
 }
 
-exports.get = botManager => new BotManager(botManager);
+exports.from = botManager => new BotOperator(botManager);
