@@ -9,7 +9,11 @@ function _objectEntries(obj) {
   return entries;
 }
 function _createForOfIteratorHelper(o, allowArrayLike) { var it = typeof Symbol !== "undefined" && o[Symbol.iterator] || o["@@iterator"]; if (!it) { if (Array.isArray(o) || (it = _unsupportedIterableToArray(o)) || allowArrayLike && o && typeof o.length === "number") { if (it) o = it; var i = 0; var F = function F() {}; return { s: F, n: function n() { if (i >= o.length) return { done: true }; return { done: false, value: o[i++] }; }, e: function e(_e) { throw _e; }, f: F }; } throw new TypeError("Invalid attempt to iterate non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); } var normalCompletion = true, didErr = false, err; return { s: function s() { it = it.call(o); }, n: function n() { var step = it.next(); normalCompletion = step.done; return step; }, e: function e(_e2) { didErr = true; err = _e2; }, f: function f() { try { if (!normalCompletion && it["return"] != null) it["return"](); } finally { if (didErr) throw err; } } }; }
+function _slicedToArray(arr, i) { return _arrayWithHoles(arr) || _iterableToArrayLimit(arr, i) || _unsupportedIterableToArray(arr, i) || _nonIterableRest(); }
+function _iterableToArrayLimit(r, l) { var t = null == r ? null : "undefined" != typeof Symbol && r[Symbol.iterator] || r["@@iterator"]; if (null != t) { var e, n, i, u, a = [], f = !0, o = !1; try { if (i = (t = t.call(r)).next, 0 === l) { if (Object(t) !== t) return; f = !1; } else for (; !(f = (e = i.call(t)).done) && (a.push(e.value), a.length !== l); f = !0); } catch (r) { o = !0, n = r; } finally { try { if (!f && null != t["return"] && (u = t["return"](), Object(u) !== u)) return; } finally { if (o) throw n; } } return a; } }
 function _toArray(arr) { return _arrayWithHoles(arr) || _iterableToArray(arr) || _unsupportedIterableToArray(arr) || _nonIterableRest(); }
+function _nonIterableRest() { throw new TypeError("Invalid attempt to destructure non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); }
+function _arrayWithHoles(arr) { if (Array.isArray(arr)) return arr; }
 function _get() { if (typeof Reflect !== "undefined" && Reflect.get) { _get = Reflect.get.bind(); } else { _get = function _get(target, property, receiver) { var base = _superPropBase(target, property); if (!base) return; var desc = Object.getOwnPropertyDescriptor(base, property); if (desc.get) { return desc.get.call(arguments.length < 3 ? target : receiver); } return desc.value; }; } return _get.apply(this, arguments); }
 function _superPropBase(object, property) { while (!Object.prototype.hasOwnProperty.call(object, property)) { object = _getPrototypeOf(object); if (object === null) break; } return object; }
 function _defineProperty(obj, key, value) { key = _toPropertyKey(key); if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
@@ -20,10 +24,6 @@ function _isNativeReflectConstruct() { try { var t = !Boolean.prototype.valueOf.
 function _getPrototypeOf(o) { _getPrototypeOf = Object.setPrototypeOf ? Object.getPrototypeOf.bind() : function _getPrototypeOf(o) { return o.__proto__ || Object.getPrototypeOf(o); }; return _getPrototypeOf(o); }
 function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function"); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, writable: true, configurable: true } }); Object.defineProperty(subClass, "prototype", { writable: false }); if (superClass) _setPrototypeOf(subClass, superClass); }
 function _setPrototypeOf(o, p) { _setPrototypeOf = Object.setPrototypeOf ? Object.setPrototypeOf.bind() : function _setPrototypeOf(o, p) { o.__proto__ = p; return o; }; return _setPrototypeOf(o, p); }
-function _slicedToArray(arr, i) { return _arrayWithHoles(arr) || _iterableToArrayLimit(arr, i) || _unsupportedIterableToArray(arr, i) || _nonIterableRest(); }
-function _nonIterableRest() { throw new TypeError("Invalid attempt to destructure non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); }
-function _iterableToArrayLimit(r, l) { var t = null == r ? null : "undefined" != typeof Symbol && r[Symbol.iterator] || r["@@iterator"]; if (null != t) { var e, n, i, u, a = [], f = !0, o = !1; try { if (i = (t = t.call(r)).next, 0 === l) { if (Object(t) !== t) return; f = !1; } else for (; !(f = (e = i.call(t)).done) && (a.push(e.value), a.length !== l); f = !0); } catch (r) { o = !0, n = r; } finally { try { if (!f && null != t["return"] && (u = t["return"](), Object(u) !== u)) return; } finally { if (o) throw n; } } return a; } }
-function _arrayWithHoles(arr) { if (Array.isArray(arr)) return arr; }
 function _toConsumableArray(arr) { return _arrayWithoutHoles(arr) || _iterableToArray(arr) || _unsupportedIterableToArray(arr) || _nonIterableSpread(); }
 function _nonIterableSpread() { throw new TypeError("Invalid attempt to spread non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); }
 function _unsupportedIterableToArray(o, minLen) { if (!o) return; if (typeof o === "string") return _arrayLikeToArray(o, minLen); var n = Object.prototype.toString.call(o).slice(8, -1); if (n === "Object" && o.constructor) n = o.constructor.name; if (n === "Map" || n === "Set") return Array.from(o); if (n === "Arguments" || /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(n)) return _arrayLikeToArray(o, minLen); }
@@ -37,26 +37,50 @@ function _toPropertyKey(t) { var i = _toPrimitive(t, "string"); return "symbol" 
 function _toPrimitive(t, r) { if ("object" != _typeof(t) || !t) return t; var e = t[Symbol.toPrimitive]; if (void 0 !== e) { var i = e.call(t, r || "default"); if ("object" != _typeof(i)) return i; throw new TypeError("@@toPrimitive must return a primitive value."); } return ("string" === r ? String : Number)(t); }
 var _require = require('../DateTime'),
   DateTime = _require.DateTime;
-var _require2 = require("../DBManager/classes"),
-  Channel = _require2.Channel;
-var $ = "/sdcard/msgbot/global_modules/bot-manager/Command";
+require('../polyfill');
+var $ = "/sdcard/msgbot/global_modules/BotOperator/Command";
 var IS_DIST = true;
 var COMPRESS = "\u200B".repeat(500);
+function josa(str, josa) {
+  var hasJong = (str.charCodeAt(str.length - 1) - '가'.charCodeAt(0)) % 28 !== 0;
+  switch (josa) {
+    case '이가':
+    case '가':
+      return str + (hasJong ? '이가' : '가');
+    case '을':
+    case '를':
+      return str + (hasJong ? '을' : '를');
+    case '은':
+    case '는':
+      return str + (hasJong ? '은' : '는');
+    case '으로':
+    case '로':
+      return str + (hasJong ? '으로' : '로');
+    case '과':
+    case '와':
+      return str + (hasJong ? '과' : '와');
+    default:
+      return str + josa;
+  }
+}
+;
 var Command = /*#__PURE__*/function () {
-  function Command(name, description, _execute, _executeLazy, _executeCron, cronJobs, channels, examples) {
+  function Command(name, icon, description, _execute, _executeLazy, _executeCron, cronJobs, channels, examples) {
     _classCallCheck(this, Command);
     if (this.constructor === Command) throw new TypeError("Cannot construct abstract class");
     if (name == null) throw new TypeError("name is required");
+    if (icon == null) throw new TypeError("icon is required");
     if (description == null) throw new TypeError("description is required");
     this.name = name;
+    this.icon = icon;
     this.description = description;
     this.channels = channels !== null && channels !== void 0 ? channels : [];
     this.cronJobs = cronJobs !== null && cronJobs !== void 0 ? cronJobs : {};
     this.examples = examples !== null && examples !== void 0 ? examples : [];
     this._execute = _execute !== null && _execute !== void 0 ? _execute : function (self, chat, channel, args) {};
     this._executeLazy = _executeLazy !== null && _executeLazy !== void 0 ? _executeLazy : function (self, chat, prevChat, channel, prevChannel, args) {};
-    this._executeCron = _executeCron !== null && _executeCron !== void 0 ? _executeCron : function (self, tag) {};
-    this.lazy = _executeLazy !== undefined;
+    this._executeCron = _executeCron !== null && _executeCron !== void 0 ? _executeCron : function (self, index, datetime) {};
+    this.lazy = _executeLazy != null;
   }
   _createClass(Command, [{
     key: "execute",
@@ -70,8 +94,8 @@ var Command = /*#__PURE__*/function () {
     }
   }, {
     key: "executeCron",
-    value: function executeCron(tag) {
-      return this._executeCron(this, tag);
+    value: function executeCron(index, datetime) {
+      return this._executeCron(this, index, datetime);
     }
   }, {
     key: "register",
@@ -79,25 +103,23 @@ var Command = /*#__PURE__*/function () {
       Registry.CommandRegistry.register(this);
     }
   }, {
-    key: "manual",
-    value: function manual(contents) {
-      var ret = ["\uD83E\uDDE9 `".concat(this.name, "` \uBA85\uB839\uC5B4 \uB3C4\uC6C0\uB9D0").concat(COMPRESS), '——————————', this.description, '', '📌 인자', '——'].concat(_toConsumableArray(contents), ['']);
-      if (Object.keys(this.cronJobs).length > 0) {
+    key: "createManual",
+    value: function createManual(contents) {
+      var ret = ["\uD83E\uDDE9 '".concat(this.name, "' \uBA85\uB839\uC5B4 \uB3C4\uC6C0\uB9D0").concat(COMPRESS), '——————————', this.description, ''].concat(_toConsumableArray(contents), ['']);
+      if (this.cronJobs.length > 0) {
         ret.push('📌 자동 실행 주기');
         ret.push('——');
-        ret.push.apply(ret, _toConsumableArray(_objectEntries(this.cronJobs).map(function (_ref) {
-          var _ref2 = _slicedToArray(_ref, 2),
-            k = _ref2[0],
-            v = _ref2[1];
-          return "\xB7 ".concat(k, ": ").concat(v);
+        ret.push.apply(ret, _toConsumableArray(this.cronJobs.map(function (_ref) {
+          var comment = _ref.comment;
+          return "\xB7 ".concat(comment);
         })));
         ret.push('');
       }
       if (this.channels.length > 0) {
         ret.push('📌 활성화된 방');
         ret.push('——');
-        ret.push.apply(ret, _toConsumableArray(this.channels.map(function (c) {
-          return "\xB7 ".concat(c.name);
+        ret.push.apply(ret, _toConsumableArray(this.channels.map(function (channel) {
+          return "\xB7 ".concat(channel.customName);
         })));
         ret.push('');
       }
@@ -105,10 +127,15 @@ var Command = /*#__PURE__*/function () {
         ret.push('📌 예시');
         ret.push('——');
         ret.push.apply(ret, _toConsumableArray(this.examples.map(function (e) {
-          return "\"".concat(e, "\"");
+          return "".concat(e);
         })));
       }
       return ret.join('\n');
+    }
+  }, {
+    key: "manual",
+    value: function manual(formats) {
+      throw new Error("Not implemented");
     }
   }]);
   return Command;
@@ -142,6 +169,8 @@ var IntArg = /*#__PURE__*/function (_Arg) {
     _this = _callSuper(this, IntArg, [name]);
     _this.min = min;
     _this.max = max;
+    _this._min_str = '이상';
+    _this._max_str = '이하';
     return _this;
   }
   _createClass(IntArg, [{
@@ -182,6 +211,9 @@ var StrArg = /*#__PURE__*/function (_Arg2) {
     _this3.length = length;
     _this3.minLength = minLength;
     _this3.maxLength = maxLength;
+    _this3._length_str_ = '글자';
+    _this3._minlength_str = '글자 이상';
+    _this3._maxlength_str = '글자 이하';
     return _this3;
   }
   _createClass(StrArg, [{
@@ -223,7 +255,7 @@ var DateArg = /*#__PURE__*/function (_Arg3) {
   _createClass(DateArg, [{
     key: "toRegExp",
     value: function toRegExp() {
-      return /[0-9+\-ㄱ-ㅎ가-힣 ]+/;
+      return /[0-9+\-ㄱ-ㅎㅏ-ㅣ가-힣:./ ]+/;
     }
   }, {
     key: "parse",
@@ -242,10 +274,15 @@ var DateArg = /*#__PURE__*/function (_Arg3) {
   }]);
   return DateArg;
 }(Arg);
-var map = {
+var mapType = {
   'int': IntArg,
   'str': StrArg,
   'date': DateArg
+};
+var mapStr = {
+  'int': '숫자',
+  'str': '문자열',
+  'date': ['날짜', '기간']
 };
 var StructuredCommand = /*#__PURE__*/function (_Command) {
   _inherits(StructuredCommand, _Command);
@@ -253,9 +290,9 @@ var StructuredCommand = /*#__PURE__*/function (_Command) {
     var _this5;
     _classCallCheck(this, StructuredCommand);
     if (options.usage == null) throw new TypeError("usage is required");
-    _this5 = _callSuper(this, StructuredCommand, [options.name, options.description, options.execute, options.executeLazy, options.executeCron, options.cronJobs, options.channels, options.examples]);
+    _this5 = _callSuper(this, StructuredCommand, [options.name, options.icon, options.description, options.execute, options.executeLazy, options.executeCron, options.cronJobs, options.channels, options.examples]);
     _this5.usage = options.usage;
-    _this5._argumentStr = [];
+    _this5._arguments = [];
     var args = [];
     var regexApplied = _this5.usage.replace(/\s*<.+?>/g, function (m) {
       var pos = m.indexOf('<');
@@ -263,29 +300,33 @@ var StructuredCommand = /*#__PURE__*/function (_Command) {
       var _m$slice$split = m.slice(pos + 1, -1).split(/\s+/),
         _m$slice$split2 = _toArray(_m$slice$split),
         nameAndType = _m$slice$split2[0],
-        options = _m$slice$split2.slice(1);
+        properties = _m$slice$split2.slice(1);
       var _nameAndType$split = nameAndType.split(":"),
         _nameAndType$split2 = _slicedToArray(_nameAndType$split, 2),
         name = _nameAndType$split2[0],
         type = _nameAndType$split2[1];
-      _this5._argumentStr.push([name, type]);
-      options = options.map(function (o) {
+      _this5._arguments.push([name, type]);
+      properties = properties.map(function (o) {
         var splited = o.split("=");
-        if (!isNaN(Number(splited[1]))) {
+        if (!Number.isNaN(Number(splited[1]))) {
           splited[1] = Number(splited[1]);
+        } else if (splited[1] === 'true') {
+          splited[1] = true;
+        } else if (splited[1] === 'false') {
+          splited[1] = false;
         }
         return splited;
       });
       var k;
-      for (var key in map) {
+      for (var key in mapType) {
         if (type.startsWith(key)) {
           k = key;
           break;
         }
       }
       if (k == null) throw new TypeError("Invalid type: ".concat(type));
-      args.push(new map[k](name));
-      var _iterator = _createForOfIteratorHelper(options),
+      args.push(new mapType[k](name));
+      var _iterator = _createForOfIteratorHelper(properties),
         _step;
       try {
         for (_iterator.s(); !(_step = _iterator.n()).done;) {
@@ -300,6 +341,7 @@ var StructuredCommand = /*#__PURE__*/function (_Command) {
         _iterator.f();
       }
       type = type.slice(k.length).trim();
+      _this5._arguments[_this5._arguments.length - 1][1] = k;
       if (type === '[]') {
         if (k !== 'date') args[args.length - 1].many = true;
       } else if (type === '?') {
@@ -321,22 +363,38 @@ var StructuredCommand = /*#__PURE__*/function (_Command) {
   }
   _createClass(StructuredCommand, [{
     key: "manual",
-    value: function manual() {
+    value: function manual(formats) {
       var _this6 = this;
-      return _get(_getPrototypeOf(StructuredCommand.prototype), "manual", this).call(this, ["\"".concat(this.usage.replace(/<.+?>/g, function (m) {
-        return m.slice(0, m.indexOf(':')) + '>';
-      }), "\"")].concat(_toConsumableArray(this.args.map(function (arg, i) {
-        var ret = "\xB7 ".concat(_this6._argumentStr[i][0], ": ").concat(_this6._argumentStr[i][1]);
-        var options = [];
+      var ret = ['📌 입력 양식', '——'];
+      var usage = this.usage.replace(/<.+?>/g, function (m) {
+        var name = m.slice(1, m.indexOf(':'));
+        if (_this6.args.find(function (arg) {
+          return arg.name === name;
+        }).many) name = "".concat(name, "...");
+        return "<".concat(name, ">");
+      });
+      ret.push(usage);
+      var args = this.args.map(function (arg, i) {
+        var argStr = _this6._arguments[i];
+        var name = argStr[0];
+        var typename = argStr[1] === 'date' ? mapStr['date'][Number(arg.duration)] : mapStr[argStr[1]];
+        var properties = [];
+        var endProperties = [];
         Object.keys(arg).forEach(function (key) {
-          if (key === 'name' || key === 'many' || key === 'includeEmpty') return;
-          if (arg[key])
+          if (arg[key] && "_".concat(key, "_str") in arg)
             // null, undefined, 0, false 등이 아닐 경우
-            options.push("".concat(key, "=").concat(arg[key]));
+            properties.push("".concat(arg[key]).concat(arg["_".concat(key, "_str")]));else {
+            if (key === 'many' && arg[key] === true) endProperties.push('여러 개 입력 가능');else if (key === 'includeEmpty' && arg[key] === true) endProperties.push('생략 허용');
+          }
         });
-        if (options.length > 0) ret += " (".concat(options.join(', '), ")");
-        return ret;
-      }))));
+        return "\xB7 ".concat(name, ": ").concat((properties.join(' ') + ' ' + typename).trim(), " ").concat(endProperties.length > 0 ? '(' + endProperties.join(', ') + ')' : '');
+      });
+      ret.push.apply(ret, _toConsumableArray(args));
+      var manual = _get(_getPrototypeOf(StructuredCommand.prototype), "createManual", this).call(this, ret);
+      for (var fmt in formats) {
+        manual = manual.replaceAll("$".concat(fmt), formats[fmt]);
+      }
+      return manual;
     }
   }], [{
     key: "add",
@@ -351,19 +409,21 @@ _defineProperty(StructuredCommand, "Builder", /*#__PURE__*/function () {
   function _class() {
     _classCallCheck(this, _class);
     this.name = null;
+    this.icon = null;
     this.description = null;
     this.usage = null;
     this.execute = null;
     this.executeLazy = null;
     this.executeCron = null;
-    this.cronJobs = {};
+    this.cronJobs = [];
     this.channels = [];
     this.examples = [];
   }
   _createClass(_class, [{
     key: "setName",
-    value: function setName(name) {
+    value: function setName(name, icon) {
       this.name = name;
+      this.icon = icon;
       return this;
     }
   }, {
@@ -382,7 +442,7 @@ _defineProperty(StructuredCommand, "Builder", /*#__PURE__*/function () {
     key: "setExecute",
     value: function setExecute(execute, executeLazy) {
       this.execute = execute;
-      if (executeLazy !== undefined) this.executeLazy = executeLazy;
+      if (executeLazy != null) this.executeLazy = executeLazy;
       return this;
     }
   }, {
@@ -398,9 +458,7 @@ _defineProperty(StructuredCommand, "Builder", /*#__PURE__*/function () {
       for (var _len = arguments.length, channels = new Array(_len), _key2 = 0; _key2 < _len; _key2++) {
         channels[_key2] = arguments[_key2];
       }
-      this.channels = channels.filter(function (x) {
-        return x instanceof Channel;
-      });
+      this.channels = channels.filter(Boolean);
       return this;
     }
   }, {
@@ -409,18 +467,24 @@ _defineProperty(StructuredCommand, "Builder", /*#__PURE__*/function () {
       for (var _len2 = arguments.length, examples = new Array(_len2), _key3 = 0; _key3 < _len2; _key3++) {
         examples[_key3] = arguments[_key3];
       }
-      this.examples = examples;
+      this.examples = examples.map(function (e) {
+        return Array.isArray(e) ? e.map(function (e2, i) {
+          return i == 0 ? e2 : '┗' + '━'.repeat(i - 1) + ' ' + e2;
+        }).join('\n') + '\n' : e;
+      });
       return this;
     }
   }, {
     key: "build",
     value: function build() {
       if (this.name == null) throw new TypeError("name is required");
+      if (this.icon == null) throw new TypeError("icon is required");
       if (this.description == null) throw new TypeError("description is required");
       if (this.usage == null) throw new TypeError("usage is required");
       if (this.execute == null) throw new TypeError("execute is required");
       return new _StructuredCommand({
         name: this.name,
+        icon: this.icon,
         description: this.description,
         usage: this.usage,
         execute: this.execute,
@@ -440,12 +504,13 @@ var NaturalCommand = /*#__PURE__*/function (_Command2) {
     var _this7;
     _classCallCheck(this, NaturalCommand);
     if (options.query == null) throw new TypeError("query is required");
-    _this7 = _callSuper(this, NaturalCommand, [options.name, options.description, options.execute, options.executeLazy, options.executeCron, options.cronJobs, options.channels, options.examples]);
+    _this7 = _callSuper(this, NaturalCommand, [options.name, options.icon, options.description, options.execute, options.executeLazy, options.executeCron, options.cronJobs, options.channels, options.examples]);
     _this7.query = options.query;
     _this7.useDateParse = options.useDateParse;
     _this7.useDuration = options.useDuration;
-    options.dictionaryPath = options.dictionaryPath || 'dict.json';
-    var dictionary = IS_DIST ? JSON.parse(FileStream.read("".concat($, "/").concat(options.dictionaryPath))) : require("./".concat(options.dictionaryPath));
+    _this7.filterIncludeEnding = options.filterIncludeEnding;
+    _this7.dictionaryPath = options.dictionaryPath || 'dict.json';
+    var dictionary = IS_DIST ? JSON.parse(FileStream.read("".concat($, "/").concat(_this7.dictionaryPath))) : require("./".concat(_this7.dictionaryPath));
     _this7.map = {};
     for (var tok in dictionary) {
       var _iterator2 = _createForOfIteratorHelper(dictionary[tok]),
@@ -461,18 +526,46 @@ var NaturalCommand = /*#__PURE__*/function (_Command2) {
         _iterator2.f();
       }
     }
+    _this7.map = _objectEntries(_this7.map).sort(function (a, b) {
+      return b[0].length - a[0].length;
+    });
     return _this7;
   }
   _createClass(NaturalCommand, [{
     key: "manual",
-    value: function manual() {
-      var ret = [];
+    value: function manual(formats) {
+      var _this8 = this;
+      var ret = ['📌 필수 포함 용어', '——'];
+      var _loop = function _loop(key) {
+        if (key === 'datetime') return 1; // continue
+        var tmp = "\xB7 ".concat(josa(key, '를'), " \uC758\uBBF8\uD558\uB294 \uC6A9\uC5B4 (ex. ").concat(_this8.map.filter(function (e) {
+          return e[1] === key;
+        }).map(function (e) {
+          return e[0];
+        }).slice(0, 4).join(', '), ", ...) ");
+        var humanize = function humanize(value) {
+          return value instanceof DateTime ? value.humanize() : value;
+        };
+        if (typeof _this8.query[key] === 'function') tmp += "(\uC0DD\uB7B5 \uC2DC \uAE30\uBCF8\uAC12 = ".concat(humanize(_this8.query[key]()), ")");else if (_this8.query[key] != null && !Number.isNaN(_this8.query[key])) tmp += "(\uC0DD\uB7B5 \uC2DC \uAE30\uBCF8\uAC12 = ".concat(humanize(_this8.query[key]), ")");
+        ret.push(tmp);
+      };
       for (var key in this.query) {
-        var tmp = "\xB7 ".concat(key, " ");
-        if (typeof this.query[key] === 'function') tmp += "(default = function -> ".concat(this.query[key](), ")");else if (this.query[key] !== null) tmp += "(default = ".concat(this.query[key], ")");
+        if (_loop(key)) continue;
+      }
+      if (this.useDateParse) {
+        var tmp;
+        if (this.useDuration) tmp = "\xB7 '\uAE30\uAC04'\uC744 \uC758\uBBF8\uD558\uB294 \uC6A9\uC5B4 (ex. \uB2E4\uC74C \uC8FC\uAE4C\uC9C0, \uB0B4\uC77C\uBD80\uD130 \uBAA8\uB808 \uC800\uB141\uAE4C\uC9C0, ...)";else tmp = "\xB7 '\uB0A0\uC9DC \uBC0F \uC2DC\uAC04'\uC744 \uC758\uBBF8\uD558\uB294 \uC6A9\uC5B4 (ex. 3\uC6D4 14\uC77C, \uB0B4\uC77C \uC800\uB141, 4\uC77C \uB4A4 5\uC2DC, ...)";
+        var humanize = function humanize(value) {
+          return value instanceof DateTime ? value.humanize() : value;
+        };
+        if (typeof this.query['datetime'] === 'function') tmp += "(\uC0DD\uB7B5 \uC2DC \uAE30\uBCF8\uAC12 = ".concat(humanize(this.query['datetime']()), ")");else if (this.query['datetime'] != null && !Number.isNaN(this.query['datetime'])) tmp += "(\uC0DD\uB7B5 \uC2DC \uAE30\uBCF8\uAC12 = ".concat(humanize(this.query['datetime']), ")");
         ret.push(tmp);
       }
-      return _get(_getPrototypeOf(NaturalCommand.prototype), "manual", this).call(this, ret);
+      var manual = _get(_getPrototypeOf(NaturalCommand.prototype), "createManual", this).call(this, ret);
+      for (var fmt in formats) {
+        manual = manual.replaceAll("$".concat(fmt), formats[fmt]);
+      }
+      return manual;
     }
   }], [{
     key: "add",
@@ -487,6 +580,7 @@ _defineProperty(NaturalCommand, "Builder", /*#__PURE__*/function () {
   function _class2() {
     _classCallCheck(this, _class2);
     this.name = null;
+    this.icon = null;
     this.description = null;
     this.query = null;
     this.dictionaryPath = null;
@@ -495,14 +589,16 @@ _defineProperty(NaturalCommand, "Builder", /*#__PURE__*/function () {
     this.executeCron = null;
     this.useDateParse = false;
     this.useDuration = false;
-    this.cronJobs = {};
+    this.filterIncludeEnding = true;
+    this.cronJobs = [];
     this.channels = [];
     this.examples = [];
   }
   _createClass(_class2, [{
     key: "setName",
-    value: function setName(name) {
+    value: function setName(name, icon) {
       this.name = name;
+      this.icon = icon;
       return this;
     }
   }, {
@@ -512,22 +608,25 @@ _defineProperty(NaturalCommand, "Builder", /*#__PURE__*/function () {
       return this;
     }
   }, {
-    key: "setQuery",
-    value: function setQuery(query) {
-      this.query = query;
-      return this;
-    }
-  }, {
     key: "setDictionaryPath",
     value: function setDictionaryPath(dictionaryPath) {
       this.dictionaryPath = dictionaryPath;
       return this;
     }
   }, {
+    key: "setQuery",
+    value: function setQuery(query) {
+      this.query = query;
+      return this;
+    }
+  }, {
     key: "setUseDateParse",
-    value: function setUseDateParse(useDateParse, useDuration) {
-      this.useDateParse = useDuration;
+    value: function setUseDateParse(useDateParse) {
+      var useDuration = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : false;
+      var filterIncludeEnding = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : true;
+      this.useDateParse = useDateParse;
       this.useDuration = useDuration;
+      this.filterIncludeEnding = filterIncludeEnding;
       return this;
     }
   }, {
@@ -550,9 +649,7 @@ _defineProperty(NaturalCommand, "Builder", /*#__PURE__*/function () {
       for (var _len3 = arguments.length, channels = new Array(_len3), _key4 = 0; _key4 < _len3; _key4++) {
         channels[_key4] = arguments[_key4];
       }
-      this.channels = channels.filter(function (x) {
-        return x instanceof Channel;
-      });
+      this.channels = channels.filter(Boolean);
       return this;
     }
   }, {
@@ -561,18 +658,24 @@ _defineProperty(NaturalCommand, "Builder", /*#__PURE__*/function () {
       for (var _len4 = arguments.length, examples = new Array(_len4), _key5 = 0; _key5 < _len4; _key5++) {
         examples[_key5] = arguments[_key5];
       }
-      this.examples = examples;
+      this.examples = examples.map(function (e) {
+        return Array.isArray(e) ? e.map(function (e2, i) {
+          return i == 0 ? e2 : '┗' + '━'.repeat(i - 1) + ' ' + e2;
+        }).join('\n') + '\n' : e;
+      });
       return this;
     }
   }, {
     key: "build",
     value: function build() {
       if (this.name == null) throw new TypeError("name is required");
+      if (this.icon == null) throw new TypeError("icon is required");
       if (this.description == null) throw new TypeError("description is required");
       if (this.query == null) throw new TypeError("query is required");
       if (this.execute == null) throw new TypeError("execute is required");
       return new _NaturalCommand({
         name: this.name,
+        icon: this.icon,
         description: this.description,
         query: this.query,
         dictionaryPath: this.dictionaryPath,
@@ -583,7 +686,8 @@ _defineProperty(NaturalCommand, "Builder", /*#__PURE__*/function () {
         channels: this.channels,
         examples: this.examples,
         useDateParse: this.useDateParse,
-        useDuration: this.useDuration
+        useDuration: this.useDuration,
+        filterIncludeEnding: this.filterIncludeEnding
       });
     }
   }]);
@@ -592,6 +696,7 @@ _defineProperty(NaturalCommand, "Builder", /*#__PURE__*/function () {
 var Registry = /*#__PURE__*/function () {
   function Registry() {
     _classCallCheck(this, Registry);
+    // 싱글톤 클래스
     if (Registry.CommandRegistry) return Registry.CommandRegistry;
     this.data = [];
     Registry.CommandRegistry = this;
@@ -605,26 +710,35 @@ var Registry = /*#__PURE__*/function () {
   }, {
     key: "loop",
     value: function loop(callback) {
-      for (var cmdName in this.data) {
-        callback(this.data[cmdName]);
-      }
-    }
-  }, {
-    key: "register",
-    value: function register(command) {
-      var _this8 = this;
-      if (!(command instanceof Command)) throw new TypeError("command must be instance of Command");
       var _iterator3 = _createForOfIteratorHelper(this.data),
         _step3;
       try {
         for (_iterator3.s(); !(_step3 = _iterator3.n()).done;) {
           var cmd = _step3.value;
-          if (cmd.name === command.name) throw new Error("Command with name \"".concat(command.name, "\" already exists"));
+          callback(cmd);
         }
       } catch (err) {
         _iterator3.e(err);
       } finally {
         _iterator3.f();
+      }
+    }
+  }, {
+    key: "register",
+    value: function register(command) {
+      var _this9 = this;
+      if (!(command instanceof Command)) throw new TypeError("command must be instance of Command");
+      var _iterator4 = _createForOfIteratorHelper(this.data),
+        _step4;
+      try {
+        for (_iterator4.s(); !(_step4 = _iterator4.n()).done;) {
+          var cmd = _step4.value;
+          if (cmd.name === command.name) throw new Error("Command with name \"".concat(command.name, "\" already exists"));
+        }
+      } catch (err) {
+        _iterator4.e(err);
+      } finally {
+        _iterator4.f();
       }
       this.data.push(command);
 
@@ -636,28 +750,30 @@ var Registry = /*#__PURE__*/function () {
         }
       });
       if (this.cronManager != null) {
-        var _loop = function _loop(tag) {
-          _this8.cronManager.add(command.cronJobs[tag], function () {
-            return command.executeCron(tag);
+        var _loop2 = function _loop2(i) {
+          var cron = command.cronJobs[i].cron;
+          _this9.cronManager.add(cron, function () {
+            return command.executeCron(i, DateTime.now());
           });
         };
-        for (var tag in command.cronJobs) {
-          _loop(tag);
+        for (var i = 0; i < command.cronJobs.length; i++) {
+          _loop2(i);
         }
       }
     }
   }, {
     key: "get",
     value: function get(chat, channel) {
-      var _iterator4 = _createForOfIteratorHelper(this.data),
-        _step4;
+      var _iterator5 = _createForOfIteratorHelper(this.data),
+        _step5;
       try {
-        var _loop2 = function _loop2() {
-            var cmd = _step4.value;
+        var _loop3 = function _loop3() {
+            var cmd = _step5.value;
             if (cmd.channels.length !== 0 && !cmd.channels.map(function (c) {
               return c.id;
             }).includes(channel.id)) // 방이 포함되어 있지 않을 경우
               return 0; // continue
+            var ret = {};
             var args;
             if (cmd instanceof StructuredCommand) {
               args = {};
@@ -676,47 +792,68 @@ var Registry = /*#__PURE__*/function () {
               if (!is_satisfy) // 세부 속성을 만족하지 못했을 경우
                 return 0; // continue
             } else if (cmd instanceof NaturalCommand) {
-              var filteredText = chat.text.replace(/ +/g, ' ').replace(/[!"#$%&'()*+,\-./:;<=>?@[\\\]^_`{|}~]/g, ""); // 구두점 제거
-
+              var filteredText = chat.text.replace(/\s+/g, ' ');
               args = Object.assign({}, cmd.query); // 기본값을 가진 객체를 깊은 복사
 
+              // 기본값만 있던 cmd.query 에서 쿼리할 대상으로 보낸 토큰들에 대응되는 단어들을 매칭
+              // 매칭이 실패하면 기본값이 있는 경우 그대로 남고, 아니면 null로 남게 된다
+              var startIdx = 0;
+              var foundTokens = {}; // 이미 찾은 토큰들 { token: word }
+
+              while (filteredText.length > startIdx) {
+                if (/\s|\d|[!"#$%&'()*+,\-./:;<=>?@[\\\]^_`{|}~]/.test(filteredText[startIdx])) {
+                  startIdx++;
+                  continue;
+                }
+                var _iterator6 = _createForOfIteratorHelper(cmd.map),
+                  _step6;
+                try {
+                  for (_iterator6.s(); !(_step6 = _iterator6.n()).done;) {
+                    var _step6$value = _slicedToArray(_step6.value, 2),
+                      word = _step6$value[0],
+                      token = _step6$value[1];
+                    if (token in args && !(token in foundTokens) && filteredText.startsWith(word, startIdx)) {
+                      args[token] = word;
+                      foundTokens[token] = word;
+                      startIdx += word.length - 1;
+                      break;
+                    }
+                  }
+                } catch (err) {
+                  _iterator6.e(err);
+                } finally {
+                  _iterator6.f();
+                }
+                startIdx++;
+              }
               if (cmd.useDateParse) {
+                if (!('datetime' in args)) args.datetime = null;
                 if (cmd.useDuration) {
-                  var _DateTime$parseDurati = DateTime.parseDurationWithFilteredString(filteredText),
+                  var _DateTime$parseDurati = DateTime.parseDuration(filteredText, true, cmd.filterIncludeEnding),
                     _DateTime$parseDurati2 = _DateTime$parseDurati.parse,
                     from = _DateTime$parseDurati2.from,
                     to = _DateTime$parseDurati2.to,
                     string = _DateTime$parseDurati.string;
-                  args.datetime = {
-                    from: from,
-                    to: to
-                  };
-                  if (from != null && to != null) filteredText = string;
+                  if (from != null && to != null) {
+                    args.datetime = {
+                      from: from,
+                      to: to
+                    };
+                    filteredText = string;
+                  }
                 } else {
-                  var _DateTime$parseWithFi = DateTime.parseWithFilteredString(filteredText),
-                    parse = _DateTime$parseWithFi.parse,
-                    _string = _DateTime$parseWithFi.string;
-                  args.datetime = parse;
-                  if (parse != null) filteredText = _string;
-                }
-              }
-
-              // 기본값만 있던 cmd.query 에서 쿼리할 대상으로 보낸 토큰들에 대응되는 단어들을 매칭
-              // 매칭이 실패하면 기본값이 있는 경우 그대로 남고, 아니면 null로 남게 된다
-              var _iterator5 = _createForOfIteratorHelper(filteredText.split(' ')),
-                _step5;
-              try {
-                for (_iterator5.s(); !(_step5 = _iterator5.n()).done;) {
-                  var word = _step5.value;
-                  if (word in cmd.map) {
-                    var token = cmd.map[word];
-                    if (token in args) args[token] = word;
+                  var _DateTime$parse = DateTime.parse(filteredText, true, cmd.filterIncludeEnding),
+                    parse = _DateTime$parse.parse,
+                    _string = _DateTime$parse.string;
+                  if (parse != null) {
+                    args.datetime = parse;
+                    filteredText = _string;
                   }
                 }
-              } catch (err) {
-                _iterator5.e(err);
-              } finally {
-                _iterator5.f();
+              }
+              chat.filteredText = filteredText.replace(/[!"#$%&'()*+,\-./:;<=>?@[\\\]^_`{|}~]/g, "");
+              for (var _token in foundTokens) {
+                chat.filteredText = chat.filteredText.replace(foundTokens[_token], '');
               }
               var is_full = true;
               for (var key in args) {
@@ -730,7 +867,6 @@ var Registry = /*#__PURE__*/function () {
                 }
               }
               if (!is_full) return 0; // continue
-              chat.filteredText = filteredText;
             }
             return {
               v: {
@@ -740,15 +876,15 @@ var Registry = /*#__PURE__*/function () {
             };
           },
           _ret2;
-        for (_iterator4.s(); !(_step4 = _iterator4.n()).done;) {
-          _ret2 = _loop2();
+        for (_iterator5.s(); !(_step5 = _iterator5.n()).done;) {
+          _ret2 = _loop3();
           if (_ret2 === 0) continue;
           if (_ret2) return _ret2.v;
         }
       } catch (err) {
-        _iterator4.e(err);
+        _iterator5.e(err);
       } finally {
-        _iterator4.f();
+        _iterator5.f();
       }
       return {
         cmd: null,

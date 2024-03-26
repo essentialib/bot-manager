@@ -23,20 +23,44 @@ var _require4 = require('./Command'),
 var IS_DIST = true;
 var Bot = /*#__PURE__*/function () {
   function Bot() {
+    var _this = this;
     _classCallCheck(this, Bot);
     this.bot = null;
-    this.dbManager = null;
+    this.dblistener = null;
     this.cronManager = CronJob;
     this.botManager = null;
     this.commandRegistry = CommandRegistry;
     this.commandRegistry.setCronManager(this.cronManager);
     this.commandEvent = function (chat, channel, command, args) {};
+    this._findCommand = function (chat, channel) {
+      for (var i = 0; i < _this._lazyArgsQueue.length; i++) {
+        var _this$_lazyArgsQueue$ = _slicedToArray(_this._lazyArgsQueue[i], 4),
+          prevChat = _this$_lazyArgsQueue$[0],
+          prevChannel = _this$_lazyArgsQueue$[1],
+          _cmd = _this$_lazyArgsQueue$[2],
+          _args = _this$_lazyArgsQueue$[3];
+        if (prevChat.user.id === chat.user.id && prevChannel.id === channel.id) {
+          _cmd.executeLazy(chat, prevChat, channel, prevChannel, _args);
+          _this._lazyArgsQueue.splice(i, 1);
+          return;
+        }
+      }
+      var _this$commandRegistry = _this.commandRegistry.get(chat, channel),
+        cmd = _this$commandRegistry.cmd,
+        args = _this$commandRegistry.args;
+      if (cmd != null) {
+        _this.commandEvent(chat, channel, cmd, args);
+        cmd.execute(chat, channel, args);
+        if (cmd.lazy) {
+          _this._lazyArgsQueue.push([chat, channel, cmd, args]);
+        }
+      }
+    };
     this._lazyArgsQueue = [];
   }
   _createClass(Bot, [{
     key: "on",
     value: function on(event, listener) {
-      var _this = this;
       if (!Object.keys(Event).map(function (key) {
         return Event[key];
       }).includes(event)) {
@@ -47,57 +71,96 @@ var Bot = /*#__PURE__*/function () {
           this.commandEvent = listener;
           break;
         case Event.MESSAGE:
-          // TEST: 여러 lazy 명령어가 동시에 들어올 때, 어떻게 처리되는지 테스트
-          this.dbManager.on(event, function (chat, channel) {
-            for (var i = 0; i < _this._lazyArgsQueue.length; i++) {
-              var _this$_lazyArgsQueue$ = _slicedToArray(_this._lazyArgsQueue[i], 4),
-                prevChat = _this$_lazyArgsQueue$[0],
-                prevChannel = _this$_lazyArgsQueue$[1],
-                _cmd = _this$_lazyArgsQueue$[2],
-                _args = _this$_lazyArgsQueue$[3];
-              if (prevChat.user.id === chat.user.id && prevChannel.id === channel.id) {
-                _cmd.executeLazy(chat, prevChat, channel, prevChannel, _args);
-                _this._lazyArgsQueue.splice(i, 1);
-                return;
-              }
-            }
-            var _this$commandRegistry = _this.commandRegistry.get(chat, channel),
-              cmd = _this$commandRegistry.cmd,
-              args = _this$commandRegistry.args;
-            if (cmd) {
-              _this.commandEvent(chat, channel, cmd, args);
-              cmd.execute(chat, channel, args);
-              if (cmd.lazy === true) {
-                _this._lazyArgsQueue.push([chat, channel, cmd, args]);
-              }
-            }
-            listener(chat, channel);
-          });
+          // 이벤트 리스너는 여러 개가 등록 가능하므로, 컴파일하면 명령어 찾아내는 리스너 하나는 자동 등록되고, 나머지 커스텀 리스너는 이렇게 따로 추가되는거로.
+          this.dblistener.on(event, listener);
           break;
         default:
-          this.dbManager.on(event, listener);
+          this.dblistener.on(event, listener);
       }
+      return this;
+    }
+  }, {
+    key: "addListener",
+    value: function addListener(event, listener) {
+      return this.on(event, listener);
+    }
+  }, {
+    key: "off",
+    value: function off(event, listener) {
+      if (!Object.keys(Event).map(function (key) {
+        return Event[key];
+      }).includes(event)) {
+        throw new Error('Invalid event');
+      }
+
+      // TODO: Event.COMMAND는 여러 리스너 공통임. 따로 안 됨 매뉴얼에 적기
+
+      switch (event) {
+        case Event.COMMAND:
+          this.commandEvent = function (chat, channel, command, args) {};
+          break;
+        default:
+          this.dblistener.off(event, listener);
+      }
+      return this;
+    }
+  }, {
+    key: "removeListener",
+    value: function removeListener(event, listener) {
+      return this.off(event, listener);
+    }
+  }, {
+    key: "eventNames",
+    value: function eventNames() {
+      return this.botManager.eventNames();
+    }
+  }, {
+    key: "rawListeners",
+    value: function rawListeners(event) {
+      return this.botManager.rawListeners(event);
+    }
+  }, {
+    key: "listeners",
+    value: function listeners(event) {
+      return this.botManager.listeners(event);
+    }
+  }, {
+    key: "listenerCount",
+    value: function listenerCount(event) {
+      return this.botManager.listenerCount(event);
+    }
+  }, {
+    key: "getMaxListeners",
+    value: function getMaxListeners() {
+      return this.botManager.getMaxListeners();
+    }
+  }, {
+    key: "setMaxListeners",
+    value: function setMaxListeners(maxListeners) {
+      return this.botManager.setMaxListeners(maxListeners);
     }
   }, {
     key: "start",
     value: function start() {
-      this.dbManager.start();
+      this.dblistener.start();
       this.cronManager.setWakeLock(true);
     }
   }, {
     key: "stop",
     value: function stop() {
-      this.dbManager.stop();
+      this.dblistener.stop();
+      this.cronManager.off();
+      this.cronManager.setWakeLock(false);
     }
   }, {
     key: "close",
     value: function close() {
-      this.dbManager.close();
+      this.dblistener.close();
     }
   }, {
     key: "addChannel",
     value: function addChannel(sbn) {
-      this.dbManager.addChannel(sbn);
+      this.dblistener.addChannel(sbn);
     }
   }, {
     key: "addCommand",
@@ -107,23 +170,24 @@ var Bot = /*#__PURE__*/function () {
   }, {
     key: "setWakeLock",
     value: function setWakeLock(_setWakeLock) {
-      this.dbManager.setWakeLock(_setWakeLock);
+      this.cronManager.setWakeLock(_setWakeLock);
     }
   }], [{
     key: "getCurrentBot",
     value: function getCurrentBot(botManager, dbManager, init) {
       var ret = new Bot();
-      ret.dbManager = dbManager.getInstance(init);
+      ret.dblistener = dbManager.getInstance(init);
       ret.botManager = botManager;
       ret.bot = ret.botManager.getCurrentBot();
+      ret.dblistener.on(Event.MESSAGE, ret._findCommand);
       ret.bot.addListener('notificationPosted', function (sbn, rm) {
-        ret.dbManager.addChannel(sbn);
+        ret.dblistener.addChannel(sbn);
       });
 
       // NOTE: 이렇게 하면 봇 소스가 여러 개일 때, 컴파일 때마다 초기화되어서
       //  한 쪽 봇 코드의 말만 듣는 현상이 생김. 그렇다고 off를 뺄 수는 없어 그냥 둠.
       ret.bot.addListener('startCompile', function () {
-        ret.dbManager.stop();
+        ret.dblistener.stop();
         ret.cronManager.off();
         ret.cronManager.setWakeLock(false);
       });
@@ -132,13 +196,13 @@ var Bot = /*#__PURE__*/function () {
   }]);
   return Bot;
 }();
-var BotManager = /*#__PURE__*/function () {
-  function BotManager(botManager) {
-    _classCallCheck(this, BotManager);
+var BotOperator = /*#__PURE__*/function () {
+  function BotOperator(botManager) {
+    _classCallCheck(this, BotOperator);
     this.botManager = botManager;
     this.dbManager = DBManager;
   }
-  _createClass(BotManager, [{
+  _createClass(BotOperator, [{
     key: "getCurrentBot",
     value: function getCurrentBot(init) {
       return Bot.getCurrentBot(this.botManager, this.dbManager, init);
@@ -149,8 +213,8 @@ var BotManager = /*#__PURE__*/function () {
       return this.dbManager.getChannelById(i);
     }
   }]);
-  return BotManager;
+  return BotOperator;
 }();
-exports.get = function (botManager) {
-  return new BotManager(botManager);
+exports.from = function (botManager) {
+  return new BotOperator(botManager);
 };
